@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tree-based Modellar, Bagging & Boosting — To'liq Qo'llanma</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  :root{
+    --bg:#0b0f1a; --bg2:#121826; --card:#151c2c; --card2:#1a2234;
+    --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.14);
+    --txt:#e6ebf5; --txt2:#9aa7bd; --txt3:#6b7890;
+    --acc:#6366f1; --acc2:#22d3ee; --grn:#34d399; --amb:#fbbf24;
+    --rose:#fb7185; --vio:#a78bfa; --org:#fb923c;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;-webkit-font-smoothing:antialiased}
+  ::selection{background:rgba(99,102,241,.35)}
+  /* scrollbar */
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:#2a3450;border-radius:6px}
+  ::-webkit-scrollbar-thumb:hover{background:#3a4560}
+
+  /* LAYOUT */
+  .wrap{display:flex;max-width:1600px;margin:0 auto}
+  .sidebar{width:280px;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;
+    background:linear-gradient(180deg,#0d1220,#0b0f1a);border-right:1px solid var(--border);padding:28px 20px}
+  .content{flex:1;min-width:0;padding:0 clamp(20px,4vw,56px) 80px}
+
+  .brand{font-size:20px;font-weight:900;letter-spacing:-.5px;margin-bottom:6px;
+    background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .brand-sub{font-size:12px;color:var(--txt3);margin-bottom:26px;font-weight:500}
+  .nav-group{margin-bottom:18px}
+  .nav-title{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--txt3);font-weight:700;margin:0 0 8px 10px}
+  .nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:var(--txt2);
+    text-decoration:none;font-size:14px;font-weight:500;transition:.15s;margin-bottom:2px}
+  .nav a:hover{background:var(--card2);color:var(--txt)}
+  .nav a.active{background:linear-gradient(90deg,rgba(99,102,241,.18),transparent);color:#c7d2fe;font-weight:600}
+  .nav a .dot{width:7px;height:7px;border-radius:50%;background:var(--acc);flex-shrink:0}
+
+  /* HERO */
+  .hero{padding:64px 0 40px;text-align:center;border-bottom:1px solid var(--border);margin-bottom:48px}
+  .hero h1{font-size:clamp(32px,5vw,56px);font-weight:900;letter-spacing:-1.5px;line-height:1.1;margin-bottom:18px}
+  .hero h1 .g{background:linear-gradient(135deg,#818cf8,#22d3ee,#34d399);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{font-size:clamp(16px,2vw,20px);color:var(--txt2);max-width:760px;margin:0 auto;font-weight:400}
+  .hero .pills{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+  .pill{padding:7px 16px;border-radius:999px;font-size:13px;font-weight:600;border:1px solid var(--border2);background:var(--card)}
+  .pill.i{color:#a5b4fc;border-color:rgba(99,102,241,.3)}
+  .pill.c{color:#67e8f9;border-color:rgba(34,211,238,.3)}
+  .pill.g{color:#6ee7b7;border-color:rgba(52,211,153,.3)}
+
+  /* SECTION */
+  section{margin-bottom:72px;scroll-margin-top:24px}
+  .sec-head{display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:18px;border-bottom:2px solid var(--border)}
+  .sec-num{display:flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:16px;
+    font-size:24px;font-weight:900;flex-shrink:0;background:linear-gradient(135deg,var(--acc),var(--vio));color:#fff;
+    box-shadow:0 8px 24px rgba(99,102,241,.35)}
+  .sec-head h2{font-size:clamp(24px,3.5vw,36px);font-weight:800;letter-spacing:-.8px}
+  h3{font-size:24px;font-weight:700;margin:36px 0 14px;letter-spacing:-.4px;display:flex;align-items:center;gap:10px}
+  h3 .ic{font-size:22px}
+  h4{font-size:19px;font-weight:700;margin:22px 0 10px;color:#c7d2fe}
+  p{color:var(--txt2);margin-bottom:14px;font-size:16px}
+  p strong,li strong{color:var(--txt);font-weight:700}
+  .lead{font-size:17px;color:var(--txt);background:var(--card);border-left:4px solid var(--acc);
+    padding:16px 22px;border-radius:0 12px 12px 0;margin-bottom:20px}
+  ul,ol{margin:0 0 16px 22px;color:var(--txt2)}
+  li{margin-bottom:8px;font-size:16px}
+
+  /* CARD */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:26px 28px;margin-bottom:22px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
+
+  /* callouts */
+  .note{border-radius:12px;padding:14px 18px;margin:16px 0;font-size:15px;border:1px solid}
+  .note.tip{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.25);color:#a7f3d0}
+  .note.warn{background:rgba(251,113,133,.08);border-color:rgba(251,113,133,.25);color:#fecdd3}
+  .note.info{background:rgba(34,211,238,.08);border-color:rgba(34,211,238,.25);color:#a5f3fc}
+  .note b{color:#fff}
+
+  /* formula */
+  .formula{background:#0a0e18;border:1px solid var(--border2);border-radius:12px;padding:18px 22px;margin:14px 0;
+    font-family:'JetBrains Mono',monospace;font-size:18px;text-align:center;color:#e6ebf5;overflow-x:auto}
+  .formula .v{color:#22d3ee}.formula .o{color:#fb7185}.formula .n{color:#fbbf24}
+
+  /* TABLE */
+  .tbl-wrap{overflow-x:auto;border-radius:14px;border:1px solid var(--border);margin:18px 0}
+  table{width:100%;border-collapse:collapse;font-size:15px;min-width:560px}
+  th{background:var(--card2);color:#c7d2fe;font-weight:700;text-align:left;padding:14px 16px;font-size:14px;
+    text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border2)}
+  td{padding:13px 16px;border-bottom:1px solid var(--border);color:var(--txt2);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(255,255,255,.02)}
+  td .yes{color:var(--grn);font-weight:700}
+  td .no{color:var(--rose);font-weight:700}
+
+  /* CODE */
+  .code{background:#080b14;border:1px solid var(--border);border-radius:14px;margin:18px 0;overflow:hidden}
+  .code-bar{display:flex;align-items:center;gap:8px;padding:11px 16px;background:#0d1220;border-bottom:1px solid var(--border)}
+  .code-bar .dots{display:flex;gap:6px}
+  .code-bar .dots i{width:11px;height:11px;border-radius:50%;display:block}
+  .code-bar .dots i:nth-child(1){background:#fb7185}.code-bar .dots i:nth-child(2){background:#fbbf24}.code-bar .dots i:nth-child(3){background:#34d399}
+  .code-bar .fname{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--txt3);margin-left:6px}
+  .code-bar .copy{margin-left:auto;font-size:12px;color:var(--txt3);cursor:pointer;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;font-family:inherit}
+  .code-bar .copy:hover{color:var(--txt);border-color:var(--border2)}
+  pre{margin:0;padding:20px 22px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.75}
+  code{font-family:'JetBrains Mono',monospace}
+  .kw{color:#c792ea}.fn{color:#82aaff}.str{color:#c3e88d}.num2{color:#f78c6c}
+  .cm{color:#546e7a;font-style:italic}.bi{color:#ffcb6b}.op{color:#89ddff}.cls{color:#ffcb6b}
+
+  /* pros cons */
+  .pc{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+  @media(max-width:700px){.pc{grid-template-columns:1fr}}
+  .pc-box{border-radius:12px;padding:16px 18px;border:1px solid}
+  .pc-box.pro{background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.2)}
+  .pc-box.con{background:rgba(251,113,133,.06);border-color:rgba(251,113,133,.2)}
+  .pc-box h5{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+  .pc-box.pro h5{color:#6ee7b7}.pc-box.con h5{color:#fda4af}
+  .pc-box ul{margin:0 0 0 18px}.pc-box li{font-size:14px;color:var(--txt2)}
+
+  /* model header badge */
+  .model-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:10px;font-size:13px;
+    font-weight:700;font-family:'JetBrains Mono',monospace;margin-bottom:8px}
+  .badge{display:inline-block;padding:3px 10px;border-radius:7px;font-size:12px;font-weight:700;margin:2px 3px}
+  .b-when{background:rgba(167,139,250,.15);color:#c4b5fd;border:1px solid rgba(167,139,250,.3)}
+
+  .footer{text-align:center;padding:40px 0;border-top:1px solid var(--border);color:var(--txt3);font-size:14px}
+
+  @media(max-width:1024px){.sidebar{display:none}.content{padding:0 20px 60px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="brand">🌳 Tree Models Guide</div>
+  <div class="brand-sub">Bagging · Boosting · XGBoost · LightGBM · CatBoost</div>
+  <nav class="nav">
+    <div class="nav-group">
+      <div class="nav-title">Bo'limlar</div>
+      <a href="#s1" class="active"><span class="dot"></span>1. Kirish & Fundamental</a>
+      <a href="#s2"><span class="dot"></span>2. Boosting modellari</a>
+      <a href="#s3"><span class="dot"></span>3. Amaliy Pipeline</a>
+      <a href="#s4"><span class="dot"></span>4. Giperparametr & Metrika</a>
+      <a href="#s5"><span class="dot"></span>5. Vizualizatsiya</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-title">Modellar</div>
+      <a href="#m-ada"><span class="dot"></span>AdaBoost</a>
+      <a href="#m-gb"><span class="dot"></span>Gradient Boosting</a>
+      <a href="#m-xgb"><span class="dot"></span>XGBoost</a>
+      <a href="#m-lgb"><span class="dot"></span>LightGBM</a>
+      <a href="#m-cat"><span class="dot"></span>CatBoost</a>
+    </div>
+  </nav>
+</aside>
+
+<main class="content">
+  <!-- HERO -->
+  <div class="hero">
+    <h1>Tree-based Modellar,<br><span class="g">Bagging & Boosting</span> Qo'llanmasi</h1>
+    <p>Qarorlar daraxtidan tortib zamonaviy Gradient Boosting kutubxonalarigacha — nazariya, matematika, to'liq Python kodi va interaktiv vizualizatsiya bilan chuqur, mukammal darslik.</p>
+    <div class="pills">
+      <span class="pill i">Scikit-Learn</span>
+      <span class="pill c">XGBoost</span>
+      <span class="pill g">LightGBM</span>
+      <span class="pill i">CatBoost</span>
+      <span class="pill c">Hyperparameter Tuning</span>
+    </div>
+  </div>
+  <!-- ============ SECTION 1 ============ -->
+  <section id="s1">
+    <div class="sec-head"><div class="sec-num">1</div><h2>Kirish va Fundamental Tushunchalar</h2></div>
+    <p class="lead">Barcha daraxtga asoslangan kuchli modellar (Random Forest, XGBoost, LightGBM...) bitta oddiy g'oyaga — <b>Qarorlar daraxtiga</b> asoslanadi. Shuning uchun avval daraxtni tushunamiz, keyin ularni birlashtirish (ansambl) usullarini.</p>
+
+    <h3><span class="ic">🌳</span>Decision Tree — Qarorlar daraxti</h3>
+    <p>Qarorlar daraxti — bu ma'lumotni ketma-ket <strong>savollar (shartlar)</strong> orqali kichik guruhlarga ajratuvchi model. Har bir savol ma'lumotni ikkiga bo'ladi, xuddi “Yosh &gt; 30mi?” degan savol kabi. Bu jarayon toza (bir sinfga tegishli) guruhlar hosil bo'lguncha davom etadi.</p>
+    <div class="grid3">
+      <div class="card">
+        <div class="model-tag" style="background:rgba(99,102,241,.15);color:#a5b4fc">🔹 Node (Tugun)</div>
+        <p style="margin:0">Ma'lumot <strong>bo'linadigan nuqta</strong>. Har bir tugunda bitta xususiyat bo'yicha shart tekshiriladi (masalan <code>daromad &lt; 5000</code>). Eng yuqoridagisi — <strong>Root Node (ildiz)</strong>.</p>
+      </div>
+      <div class="card">
+        <div class="model-tag" style="background:rgba(34,211,238,.15);color:#67e8f9">✂️ Split (Shoxlanish)</div>
+        <p style="margin:0">Tugunni ikki (yoki undan ko'p) shoxga <strong>ajratish jarayoni</strong>. Model shunday split tanlaydiki, hosil bo'lgan guruhlar imkon qadar <strong>toza</strong> bo'lsin.</p>
+      </div>
+      <div class="card">
+        <div class="model-tag" style="background:rgba(52,211,153,.15);color:#6ee7b7">🍂 Leaf (Barg)</div>
+        <p style="margin:0">Daraxtning <strong>eng oxirgi tuguni</strong> — bu yerda yakuniy qaror (bashorat) beriladi. Klassifikatsiyada — sinf, regressiyada — o'rtacha qiymat.</p>
+      </div>
+    </div>
+
+    <h4>📐 Split qanday tanlanadi? Gini Impurity va Entropy</h4>
+    <p>Model “qaysi savolni berish yaxshi?” degan qarorni <strong>nopoklik (impurity)</strong> o'lchovi orqali qabul qiladi. Maqsad — bo'linishdan keyin guruhlar imkon qadar <strong>bir xil sinfdan</strong> iborat bo'lishi (nopoklik kamayishi).</p>
+    <div class="grid2">
+      <div>
+        <h4 style="color:#fbbf24">Gini Impurity</h4>
+        <div class="formula">Gini = 1 − <span class="o">Σ</span> (<span class="v">p<sub>i</sub></span>)<sup>2</sup></div>
+        <p style="font-size:15px"><strong>p<sub>i</sub></strong> — bu <em>i</em>-sinfning guruhdagi ulushi. Qiymati <strong>0</strong> bo'lsa — guruh mutlaqo toza (hamma bir sinf). Hisoblash tez, shuning uchun CART va Random Forest'da <strong>standart</strong> tanlov.</p>
+        <div class="note info" style="font-size:14px"><b>Misol:</b> Guruhda 50% “Ha”, 50% “Yo'q” bo'lsa: Gini = 1 − (0.5²+0.5²) = <b>0.5</b> (eng nopok).</div>
+      </div>
+      <div>
+        <h4 style="color:#22d3ee">Entropy (Axborot entropiyasi)</h4>
+        <div class="formula">Entropy = −<span class="o">Σ</span> <span class="v">p<sub>i</sub></span> · log<sub>2</sub>(<span class="v">p<sub>i</sub></span>)</div>
+        <p style="font-size:15px">Guruhdagi <strong>tartibsizlik / noaniqlik</strong> darajasini o'lchaydi. Split natijasida entropiyaning kamayishi — <strong>Information Gain</strong> deb ataladi. Model eng katta Information Gain beruvchi splitni tanlaydi.</p>
+        <div class="note info" style="font-size:14px"><b>Misol:</b> 50/50 bo'lsa Entropy = 1.0 (maksimal noaniqlik); 100/0 bo'lsa Entropy = <b>0</b> (toza).</div>
+      </div>
+    </div>
+    <div class="note tip"><b>Amaliy xulosa:</b> Gini va Entropy deyarli bir xil natija beradi. Gini biroz tezroq (logarifm yo'q), shuning uchun ko'p hollarda <b>Gini</b> ishlatiladi.</div>
+
+    <h3><span class="ic">🧩</span>Ensemble Learning — Ansambl o'qitish</h3>
+    <p>Bitta daraxt tez o'rganadi, lekin <strong>ustdan o'rganish (overfitting)</strong>ga moyil va beqaror. G'oya oddiy: <strong>ko'plab modelni birlashtirsak</strong>, ularning “jamoaviy qarori” har bir alohida modeldan kuchliroq bo'ladi. Buni “donolikning ko'pchilik ovozida” deb tushunish mumkin.</p>
+    <div class="note info"><b>Ikki asosiy ansambl usuli:</b> 🔹 <b>Bagging</b> (parallel, mustaqil modellar) &nbsp;va&nbsp; 🔸 <b>Boosting</b> (ketma-ket, xatoni tuzatuvchi modellar).</div>
+    <h3><span class="ic">⚖️</span>Bagging vs Boosting — Eng muhim taqqoslash</h3>
+    <div class="grid2">
+      <div class="card" style="border-color:rgba(52,211,153,.25)">
+        <div class="model-tag" style="background:rgba(52,211,153,.15);color:#6ee7b7">🔹 BAGGING — Bootstrap Aggregating</div>
+        <p><strong>Parallel</strong> o'qitish: ma'lumotdan tasodifiy <strong>takrorlanadigan namunalar (bootstrap)</strong> olinadi va har biriga <strong>mustaqil</strong> daraxt o'qitiladi. Yakunda ular <strong>ovoz berish</strong> (klassifikatsiya) yoki <strong>o'rtacha</strong> (regressiya) orqali birlashtiriladi.</p>
+        <p><strong>Random Forest</strong> — baggingning eng mashhur namunasi: har bir daraxt nafaqat tasodifiy <em>satrlar</em>, balki har bir splitda tasodifiy <em>ustunlar (features)</em> to'plamidan ham foydalanadi → daraxtlar bir-biriga o'xshamaydi (dekorrelyatsiya).</p>
+        <div class="note tip" style="margin-bottom:0"><b>Maqsad:</b> <b>Variance</b>ni (beqarorlikni) kamaytirish. Bir daraxt beqaror, lekin 100 ta daraxt o'rtachasi barqaror.</div>
+      </div>
+      <div class="card" style="border-color:rgba(251,146,60,.25)">
+        <div class="model-tag" style="background:rgba(251,146,60,.15);color:#fdba74">🔸 BOOSTING — Ketma-ket kuchaytirish</div>
+        <p><strong>Sequential (ketma-ket)</strong> o'qitish: modellar <strong>birin-ketin</strong> o'qitiladi. Har bir yangi model <strong>oldingi modelning xatolarini</strong> tuzatishga e'tibor qaratadi — xatoli namunalarga ko'proq “vazn” beriladi yoki qoldiq xatolik (residual) bashorat qilinadi.</p>
+        <p>Modellar odatda <strong>kuchsiz (weak learners)</strong> — sayoz daraxtlar. Lekin ketma-ket tuzatish natijasida ular birgalikda juda <strong>kuchli (strong learner)</strong> modelga aylanadi. AdaBoost, Gradient Boosting, XGBoost shu oilaga kiradi.</p>
+        <div class="note warn" style="margin-bottom:0"><b>Maqsad:</b> <b>Bias</b>ni (aniqlik yetishmasligini) kamaytirish. Xatoni bosqichma-bosqich tuzatib boradi.</div>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Xususiyat</th><th>🔹 Bagging (Random Forest)</th><th>🔸 Boosting (XGBoost, ...)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>O'qitish tartibi</strong></td><td>Parallel (mustaqil, bir vaqtda)</td><td>Ketma-ket (biri ikkinchisiga bog'liq)</td></tr>
+          <tr><td><strong>Har bir model nimaga qaraydi?</strong></td><td>Tasodifiy namunaga (bir-biridan mustaqil)</td><td>Oldingi modelning <strong>xatolariga</strong></td></tr>
+          <tr><td><strong>Asosiy maqsad</strong></td><td><span class="yes">Variance</span> ↓ (overfitting'ga qarshi)</td><td><span class="yes">Bias</span> ↓ (underfitting'ga qarshi)</td></tr>
+          <tr><td><strong>Overfitting xavfi</strong></td><td>Past (barqaror)</td><td>Yuqori (agar sozlanmasa)</td></tr>
+          <tr><td><strong>Tezlik</strong></td><td>Tez (parallellashtiriladi)</td><td>Sekinroq (ketma-ket)</td></tr>
+          <tr><td><strong>Model vazni</strong></td><td>Barcha daraxt teng ovozga ega</td><td>Yaxshi modellarga ko'proq vazn</td></tr>
+          <tr><td><strong>Shovqinga (noise) sezgirlik</strong></td><td>Kam sezgir (chidamli)</td><td>Ko'proq sezgir (shovqinni ham o'rganadi)</td></tr>
+          <tr><td><strong>Tipik aniqlik</strong></td><td>Yaxshi, barqaror</td><td>Odatda <strong>eng yuqori</strong> (tuning bilan)</td></tr>
+          <tr><td><strong>Namunalar</strong></td><td>Random Forest, Extra Trees</td><td>AdaBoost, GBM, XGBoost, LightGBM, CatBoost</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note info"><b>Bir jumlada:</b> Bagging — “ko'p mustaqil ekspertlar ovoz beradi” (beqarorlikni yo'qotadi); Boosting — “bir ekspert xatosini keyingisi tuzatib boradi” (aniqlikni oshiradi).</div>
+  </section>
+  <!-- ============ SECTION 2 ============ -->
+  <section id="s2">
+    <div class="sec-head"><div class="sec-num">2</div><h2>Boosting Modellari — Chuqur Tahlil</h2></div>
+    <p class="lead">Har bir model uchun 4 ta savolga javob beramiz: <b>(1)</b> Qanday ishlaydi? <b>(2)</b> Matematik/mantiqiy g'oyasi nima? <b>(3)</b> Afzalligi va kamchiligi? <b>(4)</b> Qachon ishlatiladi?</p>
+
+    <!-- AdaBoost -->
+    <div id="m-ada" class="card" style="border-color:rgba(167,139,250,.3)">
+      <div class="model-tag" style="background:rgba(167,139,250,.15);color:#c4b5fd;font-size:15px">1 ️⃣ AdaBoost — Adaptive Boosting</div>
+      <h4>1. Ishlash prinsipi</h4>
+      <p>AdaBoost ketma-ket <strong>kuchsiz modellar</strong> (odatda “decision stump” — atigi 1 ta bo'linishga ega daraxt) o'qitadi. Har bir bosqichdan keyin <strong>noto'g'ri bashorat qilingan namunalarning vazni oshiriladi</strong>, to'g'ri topilganlarniki kamayadi. Shunday qilib keyingi model “qiyin” namunalarga ko'proq e'tibor beradi.</p>
+      <h4>2. Matematik g'oyasi</h4>
+      <p>Har bir kuchsiz model <b>m</b> uchun uning xatosiga qarab vazn (α) hisoblanadi. Kam xato qilgan model yakuniy ovozda kuchliroq bo'ladi:</p>
+      <div class="formula">α<sub>m</sub> = <span class="n">½</span> · ln( (1 − err<sub>m</sub>) / err<sub>m</sub> )</div>
+      <p style="font-size:15px">Namuna vazni yangilanishi: xato qilingan namunalarda <code>w × e<sup>α</sup></code> (oshadi), to'g'ri topilgan namunalarda <code>w × e<sup>−α</sup></code> (kamayadi). Yakuniy bashorat — barcha modellarning α bilan vaznlangan ovozi.</p>
+      <div class="pc">
+        <div class="pc-box pro"><h5>✅ Afzalliklari</h5><ul><li>Oddiy, kam parametrli</li><li>Overfitting'ga nisbatan chidamli (odatda)</li><li>Feature scaling talab qilmaydi</li></ul></div>
+        <div class="pc-box con"><h5>⚠️ Kamchiliklari</h5><ul><li>Shovqin va outlier'larga <strong>juda sezgir</strong> (ularga vazn oshiradi)</li><li>Gradient Boosting'dan kuchsizroq</li><li>Ketma-ket — sekin</li></ul></div>
+      </div>
+      <h4>4. Qachon ishlatiladi?</h4>
+      <span class="badge b-when">Toza (shovqinsiz) ma'lumot</span><span class="badge b-when">Oddiy binar klassifikatsiya</span><span class="badge b-when">Baseline model kerak bo'lganda</span>
+    </div>
+
+    <!-- Gradient Boosting -->
+    <div id="m-gb" class="card" style="border-color:rgba(99,102,241,.3)">
+      <div class="model-tag" style="background:rgba(99,102,241,.15);color:#a5b4fc;font-size:15px">2 ️⃣ Gradient Boosting (Classifier / Regressor)</div>
+      <h4>1. Ishlash prinsipi</h4>
+      <p>AdaBoost'dan farqli o'laroq, Gradient Boosting namuna vaznini emas, balki <strong>qoldiq xatolikni (residuals)</strong> bashorat qiladi. Har bir yangi daraxt oldingi modelning <strong>xatosini (haqiqiy − bashorat)</strong> o'rganadi va uni tuzatadi. Bu jarayon <strong>gradient descent</strong> optimallashtirishga o'xshaydi.</p>
+      <h4>2. Matematik g'oyasi</h4>
+      <p>Model loss funksiyasini (masalan MSE) minimallashtiradi. Har bir bosqichda loss'ning <strong>gradienti (qoldiqlar)</strong> hisoblanadi, yangi daraxt shu gradientni bashorat qiladi va model <strong>learning rate</strong> bilan yangilanadi:</p>
+      <div class="formula">F<sub>m</sub>(x) = F<sub>m−1</sub>(x) + <span class="n">η</span> · h<sub>m</sub>(x)</div>
+      <p style="font-size:15px"><span class="op">F<sub>m-1</sub></span> — oldingi model, <span class="op">h<sub>m</sub></span> — qoldiqni o'rgangan yangi daraxt, <span class="op">η (eta)</span> — learning rate (har bir qadam “og'irligi”). Kichik η = sekin, lekin barqaror o'rganish.</p>
+      <div class="pc">
+        <div class="pc-box pro"><h5>✅ Afzalliklari</h5><ul><li>Yuqori aniqlik</li><li>Ham klassifikatsiya, ham regressiya</li><li>Turli loss funksiyalarni qo'llab-quvvatlaydi</li></ul></div>
+        <div class="pc-box con"><h5>⚠️ Kamchiliklari</h5><ul><li>Sekin (parallellashtirilmaydi)</li><li>Overfitting xavfi (tuning shart)</li><li>Regularizatsiya yo'q (XGBoost buni hal qiladi)</li></ul></div>
+      </div>
+      <h4>4. Qachon ishlatiladi?</h4>
+      <span class="badge b-when">O'rta hajmli ma'lumot</span><span class="badge b-when">Yuqori aniqlik kerak</span><span class="badge b-when">XGBoost'dan oldingi klassik yechim</span>
+    </div>
+    <!-- XGBoost -->
+    <div id="m-xgb" class="card" style="border-color:rgba(52,211,153,.3)">
+      <div class="model-tag" style="background:rgba(52,211,153,.15);color:#6ee7b7;font-size:15px">3 ️⃣ XGBoost — Extreme Gradient Boosting</div>
+      <h4>1. Ishlash prinsipi</h4>
+      <p>XGBoost — Gradient Boosting'ning <strong>optimallashtirilgan va “kuchaytirilgan”</strong> versiyasi. U bir xil g'oyani (qoldiqni tuzatish) ishlatadi, lekin tezlik, aniqlik va overfitting nazorati uchun juda ko'p yaxshilanishlar qo'shadi. Kaggle musobaqalarining “chempioni” hisoblanadi.</p>
+      <h4>2. Asosiy yaxshilanishlar (Logik g'oyasi)</h4>
+      <ul>
+        <li><strong>Regularizatsiya (L1 &amp; L2):</strong> Loss funksiyasiga jarima qo'shadi → model murakkabligini cheklaydi, overfitting'ni kamaytiradi. Bu XGBoost'ni oddiy GBM'dan ustun qiladi.</li>
+        <li><strong>Parallel hisoblash:</strong> Boosting ketma-ket bo'lsa-da, <em>har bir daraxt ichida</em> split qidirishni ustunlar bo'yicha parallellashtiradi → ancha tez.</li>
+        <li><strong>Tree Pruning (max_depth + gamma):</strong> “depth-first” o'sib, keyin foydasiz shoxlarni <strong>orqaga kesadi</strong> (post-pruning).</li>
+        <li><strong>Missing values (bo'sh qiymatlar):</strong> Har bir splitda bo'sh qiymatlarni qaysi tomonga yuborish kerakligini <strong>avtomatik o'rganadi</strong> — alohida to'ldirish shart emas.</li>
+        <li><strong>Weighted Quantile Sketch:</strong> Katta ma'lumotda optimal split nuqtalarini samarali topadi.</li>
+      </ul>
+      <div class="formula">Obj = <span class="o">Σ</span> L(y, ŷ) + <span class="o">Σ</span> Ω(f<sub>k</sub>) &nbsp;&nbsp; Ω(f) = <span class="n">γ</span>T + <span class="n">½λ</span>‖w‖<sup>2</sup></div>
+      <p style="font-size:15px">Birinchi qism — <strong>loss</strong> (aniqlik), ikkinchi qism Ω — <strong>regularizatsiya jarimasi</strong>: <span class="op">T</span> barglar soni (γ bilan), <span class="op">w</span> barg qiymatlari (λ = L2 bilan). Shu ikki qism balansi XGBoost sirining kalitidir.</p>
+      <div class="pc">
+        <div class="pc-box pro"><h5>✅ Afzalliklari</h5><ul><li>Juda yuqori aniqlik + regularizatsiya</li><li>Tez (parallel), GPU qo'llab-quvvatlaydi</li><li>Missing values'ni o'zi hal qiladi</li><li>Feature importance beradi</li></ul></div>
+        <div class="pc-box con"><h5>⚠️ Kamchiliklari</h5><ul><li>Ko'p giperparametr (tuning murakkab)</li><li>Kategorial ustunlarni o'zi qo'llamaydi (encoding kerak)</li><li>Juda katta datasetda LightGBM'dan sekinroq</li></ul></div>
+      </div>
+      <h4>4. Qachon ishlatiladi?</h4>
+      <span class="badge b-when">Tabular (jadval) ma'lumot</span><span class="badge b-when">Kaggle / musobaqalar</span><span class="badge b-when">Yuqori aniqlik + nazorat kerak</span>
+    </div>
+
+    <!-- LightGBM -->
+    <div id="m-lgb" class="card" style="border-color:rgba(251,191,36,.3)">
+      <div class="model-tag" style="background:rgba(251,191,36,.15);color:#fcd34d;font-size:15px">4 ️⃣ LightGBM — Light Gradient Boosting Machine</div>
+      <h4>1. Ishlash prinsipi</h4>
+      <p>Microsoft ishlab chiqqan LightGBM — <strong>juda katta ma'lumotlar</strong> uchun tezlikka optimallashtirilgan boosting. Uning eng muhim farqi — daraxtni o'stirish usuli: <strong>leaf-wise (barg bo'yicha)</strong>.</p>
+      <h4>2. Leaf-wise vs Depth-wise (asosiy g'oya)</h4>
+      <div class="grid2">
+        <div class="note info"><b>Depth-wise (XGBoost):</b> daraxt <b>bosqichma-bosqich, teng</b> o'sadi — har bir darajadagi barcha tugunlar bo'linadi. Muvozanatli, lekin ba'zan foydasiz splitlar.</div>
+        <div class="note tip"><b>Leaf-wise (LightGBM):</b> daraxt eng ko'p <b>xatolikni kamaytiradigan bargni</b> tanlab, o'shani bo'ladi. Tezroq va aniqroq, lekin <b>overfitting</b> xavfi yuqori → <code>num_leaves</code> va <code>max_depth</code> bilan cheklash shart.</div>
+      </div>
+      <p>Qo'shimcha texnikalar: <strong>GOSS</strong> (Gradient-based One-Side Sampling — kichik gradientli namunalarni tashlab, muhimlarini saqlaydi) va <strong>EFB</strong> (Exclusive Feature Bundling — siyrak ustunlarni birlashtiradi). Bu ikkalasi tezlikni keskin oshiradi.</p>
+      <div class="pc">
+        <div class="pc-box pro"><h5>✅ Afzalliklari</h5><ul><li><strong>Eng tez</strong> — katta datasetda ideal</li><li>Kam xotira ishlatadi</li><li>Yuqori aniqlik</li><li>Kategorial ustunlarni to'g'ridan-to'g'ri qo'llaydi</li></ul></div>
+        <div class="pc-box con"><h5>⚠️ Kamchiliklari</h5><ul><li>Kichik datasetda <strong>overfitting</strong> (leaf-wise sabab)</li><li>Sozlashga sezgir (num_leaves muhim)</li><li>Natijalar biroz beqarorroq bo'lishi mumkin</li></ul></div>
+      </div>
+      <h4>4. Qachon ishlatiladi?</h4>
+      <span class="badge b-when">Katta ma'lumot (100K+ satr)</span><span class="badge b-when">Tezlik kritik</span><span class="badge b-when">Ko'p ustunli (high-dimensional)</span>
+    </div>
+
+    <!-- CatBoost -->
+    <div id="m-cat" class="card" style="border-color:rgba(251,113,133,.3)">
+      <div class="model-tag" style="background:rgba(251,113,133,.15);color:#fda4af;font-size:15px">5 ️⃣ CatBoost — Categorical Boosting</div>
+      <h4>1. Ishlash prinsipi</h4>
+      <p>Yandex ishlab chiqqan CatBoost'ning “superkuchi” — <strong>kategorial xususiyatlar (categorical features)</strong> bilan avtomatik va mukammal ishlash. Boshqa modellarda kategoriyalarni (masalan shahar nomlari) qo'lda encoding qilish kerak; CatBoost buni o'zi, aqlli tarzda bajaradi.</p>
+      <h4>2. Asosiy g'oyalari</h4>
+      <ul>
+        <li><strong>Ordered Target Encoding:</strong> Kategoriyalarni target o'rtachasi bilan kodlaydi, lekin <strong>“kelajakdan ma'lumot sizib chiqishi (target leakage)”</strong>ni oldini olish uchun faqat o'tgan satrlardan foydalanadi.</li>
+        <li><strong>Ordered Boosting:</strong> Har bir namuna uchun uni o'z ichiga olmagan modeldan bashorat oladi → overfitting keskin kamayadi.</li>
+        <li><strong>Symmetric (Oblivious) Trees:</strong> Har bir darajada <strong>bir xil shart</strong> ishlatiladi → bashorat tez va model barqaror.</li>
+      </ul>
+      <div class="note tip"><b>Amaliy plus:</b> Standart giperparametrlari (default) bilan ham juda yaxshi natija beradi — tuning kam kerak. Kategorial ustunlarni shunchaki <code>cat_features</code> ro'yxatida ko'rsatasiz, tamom.</div>
+      <div class="pc">
+        <div class="pc-box pro"><h5>✅ Afzalliklari</h5><ul><li>Kategorial ustunlar — <strong>encoding shart emas</strong></li><li>Default sozlamalar juda kuchli</li><li>Target leakage / overfitting'ga chidamli</li><li>Kichik datasetda ham barqaror</li></ul></div>
+        <div class="pc-box con"><h5>⚠️ Kamchiliklari</h5><ul><li>O'qitish ba'zan sekinroq (ordered boosting)</li><li>Ko'proq xotira talab qilishi mumkin</li><li>Sof raqamli ma'lumotda ustunligi kamroq</li></ul></div>
+      </div>
+      <h4>4. Qachon ishlatiladi?</h4>
+      <span class="badge b-when">Ko'p kategorial ustun bo'lganda</span><span class="badge b-when">Tez, ishonchli natija kerak</span><span class="badge b-when">Kam tuning bilan yuqori sifat</span>
+    </div>
+
+    <div class="note info"><b>Qisqa xulosa:</b> ✈️ <b>Tezlik</b> → LightGBM &nbsp;|&nbsp; 🎯 <b>Aniqlik + nazorat</b> → XGBoost &nbsp;|&nbsp; 🏷️ <b>Kategorial ma'lumot</b> → CatBoost &nbsp;|&nbsp; 📚 <b>Klassik/o'quv</b> → Gradient Boosting / AdaBoost.</div>
+  </section>
+  <!-- ============ SECTION 3 ============ -->
+  <section id="s3">
+    <div class="sec-head"><div class="sec-num">3</div><h2>Amaliy Pipeline — End-to-End Kod</h2></div>
+    <p class="lead">Quyida real dataset bilan ishlashning <b>to'liq sikli</b>: ma'lumotni yuklashdan tortib, tayyorlash, o'qitish, giperparametr sozlash va baholashgacha. Har bir qadam alohida va to'liq kod bilan berilgan.</p>
+
+    <h3><span class="ic">📦</span>0. Kutubxonalarni o'rnatish</h3>
+    <div class="code"><div class="code-bar"><div class="dots"><i></i><i></i><i></i></div><span class="fname">bash · terminal</span><button class="copy" onclick="cp(this)">Copy</button></div><pre><code><span class="cm"># Kerakli kutubxonalarni bir marta o'rnatamiz</span>
+pip install scikit-learn xgboost lightgbm catboost pandas numpy</code></pre></div>
+
+    <h3><span class="ic">📁</span>1. Data Loading & Preprocessing</h3>
+    <p>Ma'lumotni yuklaymiz, raqamli ustunlarni <strong>StandardScaler</strong> bilan masshtablaymiz (standartlashtiramiz) va kategorial ustunlarni <strong>encoding</strong> qilamiz.</p>
+    <div class="code"><div class="code-bar"><div class="dots"><i></i><i></i><i></i></div><span class="fname">step1_preprocess.py</span><button class="copy" onclick="cp(this)">Copy</button></div><pre><code><span class="cm"># === 1-QADAM: Kutubxonalar va ma'lumotni yuklash ===</span>
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+
+<span class="cm"># Ma'lumotni yuklaymiz (o'z faylingiz yoki tayyor dataset)</span>
+df = pd.read_csv("data.csv")
+print(df.head())            <span class="cm"># dastlabki 5 satrni ko'rish</span>
+print(df.isnull().sum())    <span class="cm"># bo'sh (NaN) qiymatlarni tekshirish</span>
+
+<span class="cm"># Maqsad (target) va xususiyatlarni (features) ajratamiz</span>
+X = df.drop("target", axis=1)   <span class="cm"># barcha ustunlar, targetdan tashqari</span>
+y = df["target"]                <span class="cm"># bashorat qilinadigan ustun</span>
+
+<span class="cm"># Ustunlarni turiga qarab ajratamiz</span>
+num_cols = X.select_dtypes(include=["int64", "float64"]).columns.tolist()
+cat_cols = X.select_dtypes(include=["object", "category"]).columns.tolist()
+
+<span class="cm"># Raqamli ustunlar -> StandardScaler (o'rtacha=0, std=1)</span>
+<span class="cm"># Kategorial ustunlar -> OneHotEncoder (raqamga aylantirish)</span>
+preprocessor = ColumnTransformer(transformers=[
+    ("num", StandardScaler(), num_cols),
+    ("cat", OneHotEncoder(handle_unknown="ignore"), cat_cols),
+])</code></pre></div>
+    <div class="note tip"><b>Eslatma:</b> Daraxtga asoslangan modellar aslida <b>scaling talab qilmaydi</b> (bo'linish nisbatlarga bog'liq emas). Lekin pipeline'ni universal qilish va boshqa modellar bilan solishtirish uchun StandardScaler qo'shildi. XGBoost/LightGBM/CatBoost'da scaling'ni tashlab yuborsangiz ham bo'ladi.</div>
+
+    <h3><span class="ic">✂️</span>2. Train-Test Split</h3>
+    <div class="code"><div class="code-bar"><div class="dots"><i></i><i></i><i></i></div><span class="fname">step2_split.py</span><button class="copy" onclick="cp(this)">Copy</button></div><pre><code><span class="cm"># === 2-QADAM: Ma'lumotni o'qitish va test qismlariga bo'lish ===</span>
+<span class="cm"># test_size=0.2 -> 80% o'qitish, 20% test</span>
+<span class="cm"># stratify=y -> sinflar nisbatini ikkala qismda ham saqlaydi (imbalanced uchun muhim)</span>
+<span class="cm"># random_state=42 -> natija takrorlanadigan bo'lishi uchun</span>
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.2,
+    stratify=y,
+    random_state=42
+)
+print(f"O'qitish: {X_train.shape}, Test: {X_test.shape}")</code></pre></div>
+    <h3><span class="ic">🏋️</span>3. Model Training — 4 xil boosting modelini o'qitish</h3>
+    <div class="code"><div class="code-bar"><div class="dots"><i></i><i></i><i></i></div><span class="fname">step3_train.py</span><button class="copy" onclick="cp(this)">Copy</button></div><pre><code><span class="cm"># === 3-QADAM: Modellarni o'qitish ===</span>
+from sklearn.ensemble import GradientBoostingClassifier
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
+from catboost import CatBoostClassifier
+
+<span class="cm"># --- Ma'lumotni tayyorlaymiz (preprocessor'ni qo'llaymiz) ---</span>
+X_train_p = preprocessor.fit_transform(X_train)   <span class="cm"># fit + transform faqat train'da</span>
+X_test_p  = preprocessor.transform(X_test)         <span class="cm"># test'da faqat transform (leakage yo'q)</span>
+
+<span class="cm"># --- 1) Scikit-Learn Gradient Boosting ---</span>
+gb = GradientBoostingClassifier(
+    n_estimators=200, learning_rate=0.1, max_depth=3, random_state=42
+)
+gb.fit(X_train_p, y_train)
+
+<span class="cm"># --- 2) XGBoost ---</span>
+xgb = XGBClassifier(
+    n_estimators=300, learning_rate=0.1, max_depth=5,
+    subsample=0.8, colsample_bytree=0.8,
+    reg_alpha=0.1, reg_lambda=1.0,      <span class="cm"># L1 va L2 regularizatsiya</span>
+    eval_metric="logloss", random_state=42
+)
+xgb.fit(X_train_p, y_train)
+
+<span class="cm"># --- 3) LightGBM ---</span>
+lgb = LGBMClassifier(
+    n_estimators=300, learning_rate=0.05,
+    num_leaves=31, max_depth=-1,        <span class="cm"># num_leaves = leaf-wise o'sish nazorati</span>
+    subsample=0.8, colsample_bytree=0.8, random_state=42
+)
+lgb.fit(X_train_p, y_train)
+
+<span class="cm"># --- 4) CatBoost (kategorial ustunlarni o'zi hal qiladi) ---</span>
+<span class="cm"># Diqqat: CatBoost'da raw (encoding qilinmagan) X ni berib, cat_features ko'rsatish afzal</span>
+cat = CatBoostClassifier(
+    iterations=300, learning_rate=0.1, depth=6,
+    cat_features=cat_cols,              <span class="cm"># kategorial ustunlar ro'yxati</span>
+    verbose=0, random_state=42
+)
+cat.fit(X_train, y_train)              <span class="cm"># CatBoost uchun raw X_train</span>
+
+print("Barcha modellar o'qitildi ✅")</code></pre></div>
+
+    <h3><span class="ic">🔍</span>4. GridSearchCV / RandomizedSearchCV — Giperparametr sozlash</h3>
+    <p>Eng yaxshi giperparametr kombinatsiyasini <strong>avtomatik</strong> qidiramiz. <code>GridSearchCV</code> barcha kombinatsiyani sinaydi (aniq, sekin), <code>RandomizedSearchCV</code> tasodifiy tanlaydi (tez, katta maydon uchun).</p>
+    <div class="code"><div class="code-bar"><div class="dots"><i></i><i></i><i></i></div><span class="fname">step4_tuning.py</span><button class="copy" onclick="cp(this)">Copy</button></div><pre><code><span class="cm"># === 4-QADAM: Hyperparameter Tuning ===</span>
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+from scipy.stats import randint, uniform
+
+<span class="cm"># --- A) GridSearchCV: barcha kombinatsiyalarni sinash ---</span>
+param_grid = {
+    "n_estimators": [100, 300, 500],
+    "max_depth": [3, 5, 7],
+    "learning_rate": [0.01, 0.05, 0.1],
+    "subsample": [0.8, 1.0],
+}
+grid = GridSearchCV(
+    estimator=XGBClassifier(eval_metric="logloss", random_state=42),
+    param_grid=param_grid,
+    scoring="f1",     <span class="cm"># baholash mezoni (imbalanced uchun f1 yaxshi)</span>
+    cv=5,             <span class="cm"># 5-fold cross-validation</span>
+    n_jobs=-1,        <span class="cm"># barcha CPU yadrolaridan foydalanish</span>
+    verbose=1
+)
+grid.fit(X_train_p, y_train)
+print("Eng yaxshi parametrlar:", grid.best_params_)
+print("Eng yaxshi CV F1:", grid.best_score_)
+best_model = grid.best_estimator_
+
+<span class="cm"># --- B) RandomizedSearchCV: katta maydonda tezroq qidirish ---</span>
+param_dist = {
+    "n_estimators": randint(100, 800),
+    "max_depth": randint(3, 10),
+    "learning_rate": uniform(0.01, 0.3),
+    "subsample": uniform(0.6, 0.4),          <span class="cm"># 0.6 dan 1.0 gacha</span>
+    "colsample_bytree": uniform(0.6, 0.4),
+}
+rand = RandomizedSearchCV(
+    estimator=XGBClassifier(eval_metric="logloss", random_state=42),
+    param_distributions=param_dist,
+    n_iter=50,        <span class="cm"># 50 ta tasodifiy kombinatsiya sinaladi</span>
+    scoring="f1", cv=5, n_jobs=-1, random_state=42
+)
+rand.fit(X_train_p, y_train)
+print("Random search eng yaxshi:", rand.best_params_)</code></pre></div>
+
+    <h3><span class="ic">📊</span>5. Model Evaluation — Baholash</h3>
+    <div class="code"><div class="code-bar"><div class="dots"><i></i><i></i><i></i></div><span class="fname">step5_evaluate.py</span><button class="copy" onclick="cp(this)">Copy</button></div><pre><code><span class="cm"># === 5-QADAM: Barcha metrikalar bo'yicha baholash ===</span>
+from sklearn.metrics import (accuracy_score, precision_score, recall_score,
+                             f1_score, roc_auc_score, confusion_matrix,
+                             classification_report)
+
+<span class="cm"># Test to'plamida bashorat qilamiz</span>
+y_pred  = best_model.predict(X_test_p)          <span class="cm"># sinf bashorati (0/1)</span>
+y_proba = best_model.predict_proba(X_test_p)[:, 1]  <span class="cm"># ehtimollik (ROC-AUC uchun)</span>
+
+<span class="cm"># --- Asosiy metrikalar ---</span>
+print("Accuracy :", accuracy_score(y_test, y_pred))
+print("Precision:", precision_score(y_test, y_pred))
+print("Recall   :", recall_score(y_test, y_pred))
+print("F1-Score :", f1_score(y_test, y_pred))
+print("ROC-AUC  :", roc_auc_score(y_test, y_proba))
+
+<span class="cm"># --- To'liq hisobot (har bir sinf bo'yicha) ---</span>
+print(classification_report(y_test, y_pred))
+
+<span class="cm"># --- Confusion Matrix ---</span>
+cm = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:\n", cm)
+<span class="cm"># cm[0][0]=TN  cm[0][1]=FP  cm[1][0]=FN  cm[1][1]=TP</span></code></pre></div>
+    <div class="note tip"><b>Pipeline tayyor!</b> Endi <code>best_model</code>'ni <code>joblib.dump(best_model, "model.pkl")</code> orqali saqlab, ishlab chiqarishga (production) chiqarishingiz mumkin.</div>
+  </section>
+  <!-- ============ SECTION 4 ============ -->
+  <section id="s4">
+    <div class="sec-head"><div class="sec-num">4</div><h2>Giperparametrlar va Metrikalar Lug'ati</h2></div>
+    <p class="lead">Bu bo'lim — amaliy “ma'lumotnoma”. Har bir giperparametrning koddagi nomi, vazifasi va uni oshirish/kamaytirish qanday ta'sir qilishini ko'rsatadi. Keyin klassifikatsiya va regressiya metrikalari.</p>
+
+    <h3><span class="ic">⚙️</span>Asosiy Giperparametrlar</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Kod nomi</th><th>Vazifasi</th><th>Oshirsak nima bo'ladi?</th><th>Maslahat</th></tr></thead>
+        <tbody>
+          <tr><td><code>n_estimators</code></td><td>Daraxtlar (bosqichlar) soni</td><td>Aniqlik oshadi, lekin overfitting + sekinlashish xavfi</td><td>learning_rate bilan birga sozlang; early stopping ishlating</td></tr>
+          <tr><td><code>max_depth</code></td><td>Har bir daraxtning maksimal chuqurligi</td><td>Model murakkablashadi → overfitting</td><td>Boosting'da kichik (3–8) yaxshi</td></tr>
+          <tr><td><code>learning_rate</code> (η)</td><td>Har bir daraxt hissasining “og'irligi”</td><td>Kamaytirsak → sekin, lekin barqaror; oshirsak → tez, lekin beqaror</td><td>Kichik η (0.01–0.1) + ko'p n_estimators</td></tr>
+          <tr><td><code>subsample</code></td><td>Har bir daraxt uchun ishlatiladigan <b>satrlar</b> ulushi</td><td>1.0 → hammasi; &lt;1.0 → tasodifiylik (regularizatsiya)</td><td>0.8 odatda overfitting'ni kamaytiradi</td></tr>
+          <tr><td><code>colsample_bytree</code></td><td>Har bir daraxt uchun ishlatiladigan <b>ustunlar</b> ulushi</td><td>&lt;1.0 → daraxtlar xilma-xil, overfitting ↓</td><td>0.7–0.9 oralig'i</td></tr>
+          <tr><td><code>min_child_weight</code></td><td>Bargda bo'lishi shart bo'lgan minimal “vazn” (namuna)</td><td>Oshirsak → model konservativ, overfitting ↓</td><td>Shovqinli ma'lumotda oshiring</td></tr>
+          <tr><td><code>reg_alpha</code> (L1)</td><td>L1 regularizatsiya — vaznlarni <b>0 ga</b> intiltiradi (feature selection)</td><td>Oshirsak → model soddalashadi, siyrak bo'ladi</td><td>Ko'p ustun bo'lsa foydali</td></tr>
+          <tr><td><code>reg_lambda</code> (L2)</td><td>L2 regularizatsiya — katta vaznlarni jarima qiladi (silliqlash)</td><td>Oshirsak → overfitting ↓, model barqaror</td><td>Standart himoya; default=1</td></tr>
+          <tr><td><code>num_leaves</code> <span style="color:var(--txt3)">(LightGBM)</span></td><td>Bir daraxtdagi maksimal barglar soni (leaf-wise)</td><td>Oshirsak → aniqlik + overfitting keskin oshadi</td><td>&lt; 2^max_depth bo'lishi shart</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note info"><b>Oltin qoida:</b> <code>learning_rate</code>↓ + <code>n_estimators</code>↑ — eng kuchli kombinatsiya. Overfitting bo'lsa → <code>max_depth</code>↓, <code>subsample</code>↓, <code>reg_lambda</code>↑ dan boshlang.</div>
+
+    <h3><span class="ic">🎯</span>Klassifikatsiya Metrikalari</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Metrika</th><th>Formula</th><th>Nimani o'lchaydi?</th><th>Qachon aldaydi / qachon ishlatiladi?</th></tr></thead>
+        <tbody>
+          <tr><td><b>Accuracy</b></td><td>(TP+TN)/All</td><td>Umumiy to'g'ri ulush</td><td><span class="no">Imbalanced</span> ma'lumotda ALDAYDI (95% “yo'q” bo'lsa, hamma “yo'q” desa 95%)</td></tr>
+          <tr><td><b>Precision</b></td><td>TP/(TP+FP)</td><td>“Positive” deganlarning to'g'riligi</td><td><b>FP qimmat</b> bo'lganda (spam filtri, firibgarlik ogohlantirishi)</td></tr>
+          <tr><td><b>Recall</b></td><td>TP/(TP+FN)</td><td>Haqiqiy positive'larni topish darajasi</td><td><b>FN qimmat</b> bo'lganda (saraton tashxisi, xavfsizlik)</td></tr>
+          <tr><td><b>F1-Score</b></td><td>2·P·R/(P+R)</td><td>Precision va Recall garmonik o'rtachasi</td><td>Imbalanced ma'lumotda <span class="yes">eng ishonchli</span> yagona ko'rsatkich</td></tr>
+          <tr><td><b>ROC-AUC</b></td><td>Egri ostidagi maydon</td><td>Sinflarni ajratish qobiliyati (barcha thresholdlar)</td><td>Umumiy sifat; <span class="no">og'ir imbalanced</span>da PR-AUC yaxshiroq</td></tr>
+          <tr><td><b>Confusion Matrix</b></td><td>TP/FP/FN/TN jadval</td><td>Xatolar turini batafsil ko'rsatadi</td><td>Har doim — boshqa metrikalarni tushuntiradi</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3><span class="ic">📈</span>Regressiya Metrikalari</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Metrika</th><th>Formula (mohiyati)</th><th>Nimani o'lchaydi?</th><th>Xususiyati / qachon?</th></tr></thead>
+        <tbody>
+          <tr><td><b>MAE</b></td><td>mean(|y − ŷ|)</td><td>O'rtacha absolut xatolik</td><td>Outlier'larga <span class="yes">chidamli</span>; birlik = target birligi (talqin oson)</td></tr>
+          <tr><td><b>MSE</b></td><td>mean((y − ŷ)²)</td><td>Xatolik kvadratlari o'rtachasi</td><td>Katta xatolarni <span class="no">kuchli jazolaydi</span>; outlier'ga sezgir</td></tr>
+          <tr><td><b>RMSE</b></td><td>√MSE</td><td>MSE'ning kvadrat ildizi</td><td>Target bilan <b>bir birlikda</b>; eng ko'p ishlatiladi</td></tr>
+          <tr><td><b>R² Score</b></td><td>1 − SS<sub>res</sub>/SS<sub>tot</sub></td><td>Model dispersiyaning qanchasini tushuntiradi</td><td>1 = mukammal, 0 = o'rtacha bilan teng, &lt;0 = yomon</td></tr>
+          <tr><td><b>MAPE</b></td><td>mean(|y−ŷ| / |y|) × 100%</td><td>O'rtacha foizli xatolik</td><td>Foizda talqin oson; <span class="no">y=0</span> bo'lsa ishlamaydi (0 ga bo'linish)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note warn"><b>Diqqat:</b> Metrikani <b>biznes maqsadiga</b> qarab tanlang. Masalan kasalxonada kasallikni o'tkazib yuborish (FN) o'lim bilan tugashi mumkin → <b>Recall</b> muhim. Bankda halol mijozni bloklash (FP) mijozni yo'qotadi → <b>Precision</b> muhim.</div>
+  </section>
+  <!-- ============ SECTION 5 ============ -->
+  <section id="s5">
+    <div class="sec-head"><div class="sec-num">5</div><h2>Vizualizatsiya va Grafiklar</h2></div>
+    <p class="lead">Nazariyani ko'z bilan ko'rib mustahkamlaymiz: Bagging va Boosting ishlash sxemasi, interaktiv Feature Importance va Confusion Matrix.</p>
+
+    <h3><span class="ic">🔹</span>Bagging — Parallel sxema</h3>
+    <div class="card">
+      <svg viewBox="0 0 800 300" style="width:100%;max-width:800px">
+        <!-- dataset -->
+        <rect x="20" y="120" width="120" height="60" rx="10" fill="rgba(99,102,241,.2)" stroke="#6366f1" stroke-width="1.5"/>
+        <text x="80" y="146" fill="#c7d2fe" font-size="14" font-weight="700" text-anchor="middle">Butun</text>
+        <text x="80" y="164" fill="#c7d2fe" font-size="14" font-weight="700" text-anchor="middle">Dataset</text>
+        <!-- arrows to samples -->
+        <g stroke="#34d399" stroke-width="2" fill="none" opacity=".7">
+          <path d="M140,150 C180,60 200,55 240,55"/><path d="M140,150 C180,150 200,150 240,150"/><path d="M140,150 C180,240 200,245 240,245"/>
+        </g>
+        <!-- bootstrap samples + trees -->
+        <g font-size="12" font-weight="600" text-anchor="middle">
+          <rect x="240" y="30" width="110" height="50" rx="8" fill="rgba(52,211,153,.15)" stroke="#34d399"/><text x="295" y="52" fill="#6ee7b7">Namuna 1</text><text x="295" y="70" fill="#6ee7b7">🌳 Tree 1</text>
+          <rect x="240" y="125" width="110" height="50" rx="8" fill="rgba(52,211,153,.15)" stroke="#34d399"/><text x="295" y="147" fill="#6ee7b7">Namuna 2</text><text x="295" y="165" fill="#6ee7b7">🌳 Tree 2</text>
+          <rect x="240" y="220" width="110" height="50" rx="8" fill="rgba(52,211,153,.15)" stroke="#34d399"/><text x="295" y="242" fill="#6ee7b7">Namuna 3</text><text x="295" y="260" fill="#6ee7b7">🌳 Tree 3</text>
+        </g>
+        <!-- arrows to aggregate -->
+        <g stroke="#22d3ee" stroke-width="2" fill="none" opacity=".7">
+          <path d="M350,55 C420,60 440,140 480,150"/><path d="M350,150 C420,150 440,150 480,150"/><path d="M350,245 C420,240 440,160 480,150"/>
+        </g>
+        <rect x="480" y="115" width="150" height="70" rx="12" fill="rgba(34,211,238,.15)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="555" y="142" fill="#a5f3fc" font-size="14" font-weight="700" text-anchor="middle">Aggregate</text>
+        <text x="555" y="162" fill="#a5f3fc" font-size="12" text-anchor="middle">(Ovoz / O'rtacha)</text>
+        <path d="M630,150 L690,150" stroke="#e6ebf5" stroke-width="2" marker-end="url(#ar)"/>
+        <rect x="690" y="125" width="90" height="50" rx="10" fill="rgba(99,102,241,.25)" stroke="#818cf8"/>
+        <text x="735" y="155" fill="#c7d2fe" font-size="14" font-weight="700" text-anchor="middle">Bashorat</text>
+        <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e6ebf5"/></marker></defs>
+      </svg>
+      <p style="margin:12px 0 0;font-size:15px">➤ Daraxtlar <b>bir vaqtda, mustaqil</b> o'qitiladi, keyin natijalar birlashtiriladi → <b>variance</b> kamayadi.</p>
+    </div>
+
+    <h3><span class="ic">🔸</span>Boosting — Ketma-ket sxema</h3>
+    <div class="card">
+      <svg viewBox="0 0 800 210" style="width:100%;max-width:800px">
+        <g font-size="12" font-weight="600" text-anchor="middle">
+          <rect x="20" y="80" width="120" height="55" rx="10" fill="rgba(251,146,60,.15)" stroke="#fb923c"/><text x="80" y="103" fill="#fdba74">Tree 1</text><text x="80" y="121" fill="#fdba74">(kuchsiz)</text>
+          <rect x="250" y="80" width="120" height="55" rx="10" fill="rgba(251,146,60,.15)" stroke="#fb923c"/><text x="310" y="103" fill="#fdba74">Tree 2</text><text x="310" y="121" fill="#fdba74">xatoni tuzatadi</text>
+          <rect x="480" y="80" width="120" height="55" rx="10" fill="rgba(251,146,60,.15)" stroke="#fb923c"/><text x="540" y="103" fill="#fdba74">Tree 3</text><text x="540" y="121" fill="#fdba74">xatoni tuzatadi</text>
+          <rect x="680" y="78" width="100" height="59" rx="12" fill="rgba(52,211,153,.18)" stroke="#34d399"/><text x="730" y="104" fill="#6ee7b7">Kuchli</text><text x="730" y="122" fill="#6ee7b7">Model</text>
+        </g>
+        <g stroke="#fbbf24" stroke-width="2.5" fill="none" marker-end="url(#ar2)">
+          <path d="M140,107 L246,107"/><path d="M370,107 L476,107"/><path d="M600,107 L676,107"/>
+        </g>
+        <g font-size="11" fill="#fca5a5" font-weight="600" text-anchor="middle">
+          <text x="193" y="95">xatolik →</text><text x="423" y="95">qoldiq →</text><text x="638" y="95">qoldiq →</text>
+        </g>
+        <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#fbbf24"/></marker></defs>
+      </svg>
+      <p style="margin:12px 0 0;font-size:15px">➤ Har bir daraxt <b>oldingisining xatosini (qoldiqni)</b> tuzatadi → <b>bias</b> kamayadi, aniqlik oshadi.</p>
+    </div>
+
+    <h3><span class="ic">📊</span>Interaktiv: Feature Importance</h3>
+    <p>Model qaysi xususiyatga (feature) qanchalik tayanganini ko'rsatadi. Ustunga bosing — tafsilotini ko'ring.</p>
+    <div class="card" id="fi-box"></div>
+
+    <h3><span class="ic">🧮</span>Interaktiv: Confusion Matrix</h3>
+    <p>Slayderlarni siljiting — metrikalar (Accuracy, Precision, Recall, F1) real vaqtda qayta hisoblanadi.</p>
+    <div class="card" id="cm-box"></div>
+  </section>
+
+  <div class="footer">
+    🌳 <b>Tree-based Modellar, Bagging &amp; Boosting</b> — To'liq interaktiv qo'llanma · O'zbek tilida<br>
+    Decision Tree · Random Forest · AdaBoost · Gradient Boosting · XGBoost · LightGBM · CatBoost
+  </div>
+</main>
+</div>
+<script>
+// Copy code buttons
+function cp(btn){
+  const pre = btn.closest('.code').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(()=>{
+    const t = btn.textContent; btn.textContent='Copied ✓';
+    setTimeout(()=>btn.textContent=t,1400);
+  });
+}
+
+// Active nav on scroll
+const secs = document.querySelectorAll('section');
+const links = document.querySelectorAll('.nav a');
+const obs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id = e.target.id;
+      links.forEach(a=>a.classList.toggle('active', a.getAttribute('href')==='#'+id));
+    }
+  });
+},{rootMargin:'-20% 0px -70% 0px'});
+secs.forEach(s=>obs.observe(s));
+
+// Feature Importance interactive
+const feats = [
+  {n:'daromad',        v:0.28, d:"Mijoz daromadi — eng kuchli signal. Modelning 28% qarori shunga tayanadi."},
+  {n:'yosh',           v:0.21, d:"Yosh — ikkinchi eng muhim omil. Xarid xatti-harakati bilan bog'liq."},
+  {n:'kredit_tarix',   v:0.18, d:"Kredit tarixi — to'lov ishonchliligini ko'rsatadi."},
+  {n:'operatsiya_soni',v:0.14, d:"Oylik operatsiyalar soni — faollik darajasi."},
+  {n:'hudud',          v:0.11, d:"Geografik hudud — kategorial xususiyat."},
+  {n:'jins',           v:0.08, d:"Jins — nisbatan kam ta'sirli xususiyat."}
+];
+const fiColors=['#6366f1','#22d3ee','#34d399','#fbbf24','#fb923c','#fb7185'];
+let fiHtml='<div style="display:flex;flex-direction:column;gap:12px">';
+feats.forEach((f,i)=>{
+  fiHtml+=`<div class="fi-row" data-i="${i}" style="cursor:pointer">
+    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:5px">
+      <span style="font-family:'JetBrains Mono',monospace;color:#e6ebf5">${f.n}</span>
+      <span style="color:${fiColors[i]}">${(f.v*100).toFixed(0)}%</span></div>
+    <div style="height:16px;background:rgba(255,255,255,.05);border-radius:8px;overflow:hidden">
+      <div style="height:100%;width:0;background:${fiColors[i]};border-radius:8px;transition:width 1s ease" data-w="${f.v/0.28*100}"></div>
+    </div></div>`;
+});
+fiHtml+='</div><div id="fi-detail" style="margin-top:16px;padding:14px 18px;border-radius:10px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);font-size:15px;color:#c7d2fe">⬆️ Ustunga bosib, xususiyat tavsifini ko\'ring.</div>';
+document.getElementById('fi-box').innerHTML=fiHtml;
+setTimeout(()=>document.querySelectorAll('#fi-box [data-w]').forEach(b=>b.style.width=b.dataset.w+'%'),200);
+document.querySelectorAll('.fi-row').forEach(r=>r.onclick=()=>{
+  const f=feats[r.dataset.i];
+  document.getElementById('fi-detail').innerHTML=`<b style="font-family:'JetBrains Mono',monospace">${f.n}</b> — ${f.d}`;
+});
+
+// Confusion Matrix interactive
+const cmBox=document.getElementById('cm-box');
+cmBox.innerHTML=`
+<div style="display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start">
+  <div style="flex:1;min-width:300px">
+    <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;max-width:420px">
+      <div></div>
+      <div style="text-align:center;font-weight:700;color:#34d399;font-size:14px">Bashorat: Pos</div>
+      <div style="text-align:center;font-weight:700;color:#fb7185;font-size:14px">Bashorat: Neg</div>
+      <div style="writing-mode:vertical-lr;transform:rotate(180deg);text-align:center;font-weight:700;color:#9aa7bd;font-size:13px">Haqiqiy Pos</div>
+      <div id="c-tp" style="background:rgba(52,211,153,.18);border:1.5px solid rgba(52,211,153,.4);border-radius:10px;padding:18px;text-align:center"><div style="font-size:12px;color:#6ee7b7;font-weight:700">TP</div><div style="font-size:26px;font-weight:900;color:#6ee7b7">85</div></div>
+      <div id="c-fn" style="background:rgba(251,146,60,.15);border:1.5px solid rgba(251,146,60,.35);border-radius:10px;padding:18px;text-align:center"><div style="font-size:12px;color:#fdba74;font-weight:700">FN</div><div style="font-size:26px;font-weight:900;color:#fdba74">15</div></div>
+      <div style="writing-mode:vertical-lr;transform:rotate(180deg);text-align:center;font-weight:700;color:#9aa7bd;font-size:13px">Haqiqiy Neg</div>
+      <div id="c-fp" style="background:rgba(251,113,133,.15);border:1.5px solid rgba(251,113,133,.35);border-radius:10px;padding:18px;text-align:center"><div style="font-size:12px;color:#fda4af;font-weight:700">FP</div><div style="font-size:26px;font-weight:900;color:#fda4af">10</div></div>
+      <div id="c-tn" style="background:rgba(99,102,241,.18);border:1.5px solid rgba(99,102,241,.4);border-radius:10px;padding:18px;text-align:center"><div style="font-size:12px;color:#a5b4fc;font-weight:700">TN</div><div style="font-size:26px;font-weight:900;color:#a5b4fc">90</div></div>
+    </div>
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:14px">
+      ${['TP','FP','FN','TN'].map(k=>`<label style="font-size:13px;color:#9aa7bd;font-weight:600">${k}: <span id="lbl-${k}" style="color:#e6ebf5"></span><input type="range" id="sl-${k}" min="0" max="200" style="width:100%;accent-color:#6366f1"></label>`).join('')}
+    </div>
+  </div>
+  <div style="flex:1;min-width:240px;display:flex;flex-direction:column;gap:12px">
+    ${[['Accuracy','m-acc','#34d399'],['Precision','m-prec','#fb923c'],['Recall','m-rec','#fb7185'],['F1-Score','m-f1','#22d3ee']].map(m=>`<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600;color:#e6ebf5">${m[0]}</span><span id="${m[1]}" style="font-size:24px;font-weight:900;color:${m[2]};font-family:'JetBrains Mono',monospace">0</span></div>`).join('')}
+  </div>
+</div>`;
+const vals={TP:85,FP:10,FN:15,TN:90};
+function cmUpdate(){
+  const {TP,FP,FN,TN}=vals, all=TP+FP+FN+TN||1;
+  const acc=(TP+TN)/all, prec=TP/(TP+FP||1), rec=TP/(TP+FN||1);
+  const f1=(prec+rec)?2*prec*rec/(prec+rec):0;
+  document.getElementById('m-acc').textContent=(acc*100).toFixed(1)+'%';
+  document.getElementById('m-prec').textContent=prec.toFixed(3);
+  document.getElementById('m-rec').textContent=rec.toFixed(3);
+  document.getElementById('m-f1').textContent=f1.toFixed(3);
+  ['TP','FP','FN','TN'].forEach(k=>{
+    document.querySelector('#c-'+k.toLowerCase()+' div:last-child').textContent=vals[k];
+    document.getElementById('lbl-'+k).textContent=vals[k];
+  });
+}
+['TP','FP','FN','TN'].forEach(k=>{
+  const sl=document.getElementById('sl-'+k); sl.value=vals[k];
+  sl.oninput=()=>{vals[k]=+sl.value; cmUpdate();};
+});
+cmUpdate();
+</script>
+</body>
+</html>
