@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Mukammal Konspekt — Klassik ML & Ensemble Methods</title>
+<style>
+:root{
+  --bg:#0d1117; --bg2:#161b22; --bg3:#1c2333; --card:#161b22;
+  --border:#30363d; --text:#e6edf3; --muted:#8b949e;
+  --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; --danger:#f85149;
+  --purple:#bc8cff; --pink:#f778ba; --code-bg:#0b0f14;
+  --shadow:0 8px 30px rgba(0,0,0,.4);
+}
+[data-theme="light"]{
+  --bg:#f6f8fa; --bg2:#ffffff; --bg3:#eef2f7; --card:#ffffff;
+  --border:#d0d7de; --text:#1f2328; --muted:#57606a;
+  --accent:#0969da; --accent2:#1a7f37; --warn:#9a6700; --danger:#cf222e;
+  --purple:#8250df; --pink:#bf3989; --code-bg:#f6f8fa;
+  --shadow:0 8px 30px rgba(140,149,159,.2);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--text); line-height:1.7;
+  transition:background .3s,color .3s; -webkit-font-smoothing:antialiased;
+}
+/* NAVBAR */
+.navbar{
+  position:fixed; top:0; left:0; right:0; z-index:1000;
+  background:rgba(13,17,23,.85); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border); height:60px;
+  display:flex; align-items:center; padding:30px 20px; gap:16px;
+}
+[data-theme="light"] .navbar{background:rgba(255,255,255,.85)}
+.logo{font-weight:800;font-size:1.15rem;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.logo .dot{width:12px;height:12px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--purple));box-shadow:0 0 12px var(--accent)}
+.nav-links{display:flex;gap:4px;list-style:none;margin-left:auto;flex-wrap:wrap;overflow-x:auto;max-width:70vw}
+.nav-links a{color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:8px;
+  font-size:.82rem;white-space:nowrap;transition:.2s}
+.nav-links a:hover{color:var(--text);background:var(--bg3)}
+.theme-btn,.menu-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  width:40px;height:40px;border-radius:10px;cursor:pointer;font-size:1.1rem;display:flex;
+  align-items:center;justify-content:center;flex-shrink:0;transition:.2s}
+.theme-btn:hover,.menu-btn:hover{border-color:var(--accent)}
+.menu-btn{display:none;margin-left:auto}
+/* HERO */
+.hero{padding:120px 20px 60px;text-align:center;max-width:900px;margin:0 auto}
+.hero h1{font-size:clamp(1.8rem,5vw,3rem);line-height:1.2;margin-bottom:16px;
+  background:linear-gradient(135deg,var(--accent),var(--purple),var(--pink));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);font-size:1.05rem;max-width:640px;margin:0 auto}
+.hero .badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+.badge{background:var(--bg3);border:1px solid var(--border);padding:6px 14px;border-radius:20px;font-size:.82rem;color:var(--accent)}
+/* LAYOUT */
+.container{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+section{scroll-margin-top:72px;margin-bottom:56px;background:var(--card);border:1px solid var(--border);
+  border-radius:18px;padding:32px;box-shadow:var(--shadow)}
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.sec-num{background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;
+  min-width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:1.1rem;flex-shrink:0}
+.sec-head h2{font-size:clamp(1.3rem,3vw,1.8rem)}
+.sec-sub{color:var(--muted);margin-bottom:24px;font-size:.95rem}
+h3{margin:28px 0 12px;font-size:1.2rem;display:flex;align-items:center;gap:8px}
+h3 .ico{font-size:1.1rem}
+h4{margin:18px 0 8px;font-size:1.02rem;color:var(--accent)}
+p{margin-bottom:12px}
+ul,ol{margin:10px 0 14px 22px}
+li{margin-bottom:6px}
+strong{color:var(--text)}
+.tag{display:inline-block;background:var(--bg3);border:1px solid var(--border);
+  padding:2px 8px;border-radius:6px;font-size:.8rem;color:var(--accent);font-family:monospace}
+/* CALLOUT BOXES */
+.box{border-radius:12px;padding:16px 18px;margin:16px 0;border-left:4px solid var(--accent);background:var(--bg3)}
+.box.q{border-left-color:var(--purple)}
+.box.warn{border-left-color:var(--warn)}
+.box.ok{border-left-color:var(--accent2)}
+.box.info{border-left-color:var(--accent)}
+.box b{display:block;margin-bottom:6px}
+/* FORMULA */
+.formula{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;
+  padding:16px 18px;margin:14px 0;font-family:'Cambria Math',Georgia,serif;font-size:1.1rem;
+  text-align:center;overflow-x:auto;color:var(--text)}
+.formula .note{display:block;font-family:'Segoe UI',sans-serif;font-size:.85rem;color:var(--muted);margin-top:8px}
+/* TABLE */
+.table-wrap{overflow-x:auto;margin:16px 0;border-radius:10px;border:1px solid var(--border)}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:420px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+th{background:var(--bg3);color:var(--accent);font-weight:700;position:sticky;top:0}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--bg3)}
+.hl{color:var(--accent2);font-weight:700}
+.hl2{color:var(--pink);font-weight:700}
+/* CODE */
+.code-block{background:var(--code-bg);border:1px solid var(--border);border-radius:12px;margin:16px 0;overflow:hidden}
+.code-head{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;
+  background:var(--bg3);border-bottom:1px solid var(--border);font-size:.82rem;color:var(--muted)}
+.copy-btn{background:transparent;border:1px solid var(--border);color:var(--muted);
+  padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.78rem;transition:.2s}
+.copy-btn:hover{color:var(--accent);border-color:var(--accent)}
+pre{padding:16px;overflow-x:auto;font-family:'Consolas','Fira Code',monospace;font-size:.85rem;line-height:1.6}
+code{font-family:'Consolas','Fira Code',monospace}
+.cm{color:var(--muted);font-style:italic}
+.kw{color:var(--pink)}
+.fn{color:var(--accent)}
+.st{color:var(--accent2)}
+.nu{color:var(--warn)}
+/* SVG WRAP */
+.svg-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:20px;margin:16px 0;text-align:center;overflow-x:auto}
+.svg-wrap svg{max-width:100%;height:auto}
+.svg-cap{color:var(--muted);font-size:.85rem;margin-top:10px}
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.pros,.cons{border-radius:12px;padding:16px}
+.pros{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.3)}
+.cons{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3)}
+.pros h4{color:var(--accent2)}.cons h4{color:var(--danger)}
+/* QUIZ */
+.quiz-q{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:18px;margin:14px 0}
+.quiz-q p{font-weight:600}
+.quiz-opt{display:block;background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:10px 14px;margin:8px 0;cursor:pointer;transition:.15s}
+.quiz-opt:hover{border-color:var(--accent)}
+.quiz-opt.correct{background:rgba(63,185,80,.15);border-color:var(--accent2)}
+.quiz-opt.wrong{background:rgba(248,81,73,.15);border-color:var(--danger)}
+.quiz-fb{margin-top:8px;font-size:.88rem;display:none}
+#quiz-score{font-size:1.2rem;font-weight:800;text-align:center;margin-top:20px;padding:16px;border-radius:12px;background:var(--bg3);display:none}
+/* CHECKLIST */
+.check-item{display:flex;gap:14px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:16px;margin:12px 0;align-items:flex-start}
+.check-num{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;
+  min-width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+/* BACK TO TOP */
+.top-btn{position:fixed;bottom:24px;right:24px;width:48px;height:48px;border-radius:50%;
+  background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:1.3rem;box-shadow:var(--shadow);
+  opacity:0;pointer-events:none;transition:.3s;z-index:999}
+.top-btn.show{opacity:1;pointer-events:auto}
+footer{text-align:center;padding:40px 20px;color:var(--muted);border-top:1px solid var(--border);font-size:.9rem}
+/* MOBILE */
+@media(max-width:820px){
+  .nav-links{position:fixed;top:60px;right:0;left:0;flex-direction:column;background:var(--bg2);
+    border-bottom:1px solid var(--border);max-width:100%;padding:12px;gap:2px;max-height:0;overflow:hidden;
+    transition:max-height .3s;box-shadow:var(--shadow)}
+  .nav-links.open{max-height:80vh;overflow-y:auto}
+  .nav-links a{padding:12px;font-size:.95rem;border-radius:8px}
+  .menu-btn{display:flex}
+  .theme-btn{margin-left:0}
+  section{padding:20px 16px}
+  .grid2,.pros-cons{grid-template-columns:1fr}
+  .sec-head h2{font-size:1.2rem}
+}
+@media(max-width:400px){
+  .navbar{padding:0 12px;gap:8px}
+  .logo{font-size:1rem}
+  .container{padding:0 12px 60px}
+}
+</style>
+</head>
+<body>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo"><span class="dot"></span>ML&nbsp;Konspekt</div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#s1">1. Linear</a></li>
+    <li><a href="#s2">2. Logistic</a></li>
+    <li><a href="#s3">3. Metrikalar</a></li>
+    <li><a href="#s4">4. KNN & SVM</a></li>
+    <li><a href="#s5">5. Decision Tree</a></li>
+    <li><a href="#s6">6. Ensemble</a></li>
+    <li><a href="#s7">7. Random Forest</a></li>
+    <li><a href="#s8">8. Boosting</a></li>
+    <li><a href="#s9">9. Pipeline</a></li>
+    <li><a href="#s10">10. Glossary</a></li>
+    <li><a href="#s11">11. Mindset</a></li>
+  </ul>
+  <button class="theme-btn" id="themeBtn" title="Rejimni almashtirish">☾</button>
+  <button class="menu-btn" id="menuBtn" title="Menyu">☰</button>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <h1>Machine Learning — Mukammal Interaktiv Konspekt</h1>
+  <p>Klassik ML va Ensemble Methods boʻyicha chuqur, matematik va vizual qoʻllanma. Har bir algoritm mohiyati, qadamba-qadam matematikasi, SVG grafiklari va qatorma-qator izohlangan kodi bilan.</p>
+  <div class="badges">
+    <span class="badge">Linear → XGBoost</span>
+    <span class="badge">Matematik misollar</span>
+    <span class="badge">SVG vizualizatsiya</span>
+    <span class="badge">Toʻliq Pipeline</span>
+  </div>
+</header>
+
+<div class="container">
+<!-- ================= SECTION 1: LINEAR REGRESSION ================= -->
+<section id="s1">
+  <div class="sec-head"><span class="sec-num">1</span><h2>Linear Regression (Chiziqli Regressiya)</h2></div>
+  <p class="sec-sub">Uzluksiz sonli qiymatni (masalan uy narxi, safar davomiyligi) bashorat qiladigan eng oddiy va poydevor algoritm.</p>
+
+  <h3><span class="ico">🧠</span>A) Algoritm mohiyati & matematikasi</h3>
+  <p><strong>Nima oʻzi bu algoritm?</strong> Linear Regression — kirish belgilar (features) bilan chiqish (target) oʻrtasida <b>toʻgʻri chiziqli bogʻlanish</b> bor deb faraz qiladi. U eng mos toʻgʻri chiziqni (yoki koʻp oʻlchamda tekislikni) topadi.</p>
+  <div class="box q"><b>Bu boʻlmasa nima boʻlardi?</b> Agar chiziqli model boʻlmasa, har bir yangi qiymat uchun "oʻxshash misollarni" qidirishimiz kerak boʻlardi. Linear Regression esa butun bogʻlanishni <b>bir nechta koeffitsientga</b> (w, b) siqib, tez va tushunarli bashorat beradi. Bu boʻlsa — har bir belgi natijaga qancha taʻsir qilishini (koeffitsient) aniq koʻramiz.</p>
+
+  <h4>Asosiy formula</h4>
+  <div class="formula">ŷ = w₁x₁ + w₂x₂ + ... + wₙxₙ + b
+    <span class="note">ŷ = bashorat · x = belgilar · w = ogʻirliklar (weights, koeffitsientlar) · b = kesim (bias/intercept)</span>
+  </div>
+
+  <h4>Loss function — MSE (Mean Squared Error)</h4>
+  <p>Model qanchalik xato qilayotganini oʻlchaydigan funksiya. Chiziq nuqtalarga qanchalik yaqin boʻlsa, MSE shuncha kichik.</p>
+  <div class="formula">MSE = (1/n) · Σ (yᵢ − ŷᵢ)²
+    <span class="note">yᵢ = haqiqiy qiymat · ŷᵢ = bashorat · (y−ŷ)² kvadrat — katta xatolarni kuchli jazolaydi va manfiy/musbatni birxil qiladi</span>
+  </div>
+  <div class="grid2">
+    <div class="formula">RMSE = √MSE<span class="note">Xatoni target bilan bir oʻlchovga (masalan sekund) qaytaradi — talqin qilish oson</span></div>
+    <div class="formula">MAE = (1/n)·Σ|yᵢ − ŷᵢ|<span class="note">Oʻrtacha absolyut xato — outlierlarga MSE'dan kamroq sezgir</span></div>
+  </div>
+
+  <h4>Gradient Descent — ishlash prinsipi</h4>
+  <p>Eng yaxshi w va b ni topish uchun "togʻdan pastga tushish" usuli. Loss funksiyasi — kosa (parabola) shaklidagi yuza. Biz tasodifiy nuqtadan boshlab, <b>eng past nuqtaga (minimum)</b> qadamba-qadam tushamiz.</p>
+  <ol>
+    <li><strong>1-qadam:</strong> w va b ni tasodifiy qiymat bilan boshlaymiz.</li>
+    <li><strong>2-qadam:</strong> Bashorat qilamiz → xatoni (MSE) hisoblaymiz.</li>
+    <li><strong>3-qadam:</strong> Gradient (nishab, hosila) ni hisoblaymiz — loss qaysi tomonga ortadi?</li>
+    <li><strong>4-qadam:</strong> w va b ni gradientning <b>teskarisiga</b> siljitamiz (pastga qarab).</li>
+    <li><strong>5-qadam:</strong> 2–4 qadamlarni loss deyarli oʻzgarmaguncha takrorlaymiz.</li>
+  </ol>
+  <div class="formula">w := w − α · (∂MSE/∂w)
+    <span class="note">α (alpha) = learning rate (oʻrganish tezligi). Katta α → sakraydi/uzoqlashadi; kichik α → juda sekin. ∂MSE/∂w = nishab</span>
+  </div>
+
+  <h3><span class="ico">🔢</span>B) Step-by-step matematik misol</h3>
+  <p>Kichik dataset: uy maydoni (x, 100 m² da) va narxi (y, ming $ da). 1 ta belgili sodda modelni koʻramiz: <span class="tag">ŷ = w·x + b</span></p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Uy</th><th>x (maydon)</th><th>y (narx, real)</th></tr></thead>
+    <tbody>
+      <tr><td>A</td><td>1</td><td>2</td></tr>
+      <tr><td>B</td><td>2</td><td>4</td></tr>
+      <tr><td>C</td><td>3</td><td>6</td></tr>
+    </tbody></table></div>
+  <p><strong>Boshlangʻich:</strong> w = 0, b = 0, learning rate α = 0.1</p>
+  <p><strong>1-iteratsiya bashorati:</strong> ŷ = 0·x + 0 = 0 (barchasi uchun).</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>x</th><th>y</th><th>ŷ</th><th>xato (ŷ−y)</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>2</td><td>0</td><td class="hl2">−2</td></tr>
+      <tr><td>2</td><td>4</td><td>0</td><td class="hl2">−4</td></tr>
+      <tr><td>3</td><td>6</td><td>0</td><td class="hl2">−6</td></tr>
+    </tbody></table></div>
+  <p><strong>Gradientlar:</strong> ∂/∂w = (2/n)·Σ x·(ŷ−y) = (2/3)·[1·(−2)+2·(−4)+3·(−6)] = (2/3)·(−28) = <span class="hl">−18.67</span></p>
+  <p>∂/∂b = (2/n)·Σ(ŷ−y) = (2/3)·(−12) = <span class="hl">−8.0</span></p>
+  <p><strong>Yangilash:</strong> w := 0 − 0.1·(−18.67) = <span class="hl">+1.867</span> · b := 0 − 0.1·(−8) = <span class="hl">+0.8</span></p>
+  <div class="box ok"><b>Natija:</b> Bir qadamdan keyin w=0 → 1.87 ga, b=0 → 0.8 ga koʻtarildi. Endi ŷ haqiqiy qiymatlarga yaqinlashadi. Iteratsiyalar takrorlanib, w→2, b→0 (ideal toʻgʻri chiziq ŷ=2x) ga yaqinlashadi va MSE→0.</div>
+
+  <h3><span class="ico">📈</span>C) Vizual grafik (SVG)</h3>
+  <div class="svg-wrap">
+    <svg viewBox="0 0 460 300" width="460">
+      <line x1="50" y1="260" x2="440" y2="260" stroke="var(--border)" stroke-width="1.5"/>
+      <line x1="50" y1="260" x2="50" y2="20" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="240" y="290" fill="var(--muted)" font-size="12" text-anchor="middle">x (belgi)</text>
+      <text x="18" y="140" fill="var(--muted)" font-size="12" transform="rotate(-90 18 140)">y (target)</text>
+      <line x1="60" y1="250" x2="430" y2="60" stroke="var(--accent)" stroke-width="2.5"/>
+      <circle cx="90" cy="235" r="5" fill="var(--pink)"/><line x1="90" y1="235" x2="90" y2="224" stroke="var(--danger)" stroke-dasharray="3"/>
+      <circle cx="170" cy="180" r="5" fill="var(--pink)"/><line x1="170" y1="180" x2="170" y2="195" stroke="var(--danger)" stroke-dasharray="3"/>
+      <circle cx="250" cy="170" r="5" fill="var(--pink)"/><line x1="250" y1="170" x2="250" y2="150" stroke="var(--danger)" stroke-dasharray="3"/>
+      <circle cx="330" cy="120" r="5" fill="var(--pink)"/><line x1="330" y1="120" x2="330" y2="105" stroke="var(--danger)" stroke-dasharray="3"/>
+      <circle cx="400" cy="70" r="5" fill="var(--pink)"/>
+      <text x="350" y="200" fill="var(--accent)" font-size="12">eng mos chiziq</text>
+    </svg>
+    <div class="svg-cap">Pushti nuqtalar = real data. Koʻk chiziq = model. Qizil punktir = residual (xato). MSE bu xatolar kvadratining oʻrtachasi.</div>
+  </div>
+  <div class="svg-wrap">
+    <svg viewBox="0 0 460 260" width="460">
+      <path d="M60 40 Q230 300 420 40" fill="none" stroke="var(--purple)" stroke-width="2.5"/>
+      <circle cx="95" cy="120" r="6" fill="var(--danger)"/><text x="70" y="110" fill="var(--muted)" font-size="11">boshlangʻich</text>
+      <circle cx="150" cy="178" r="6" fill="var(--warn)"/>
+      <circle cx="210" cy="215" r="6" fill="var(--warn)"/>
+      <circle cx="240" cy="228" r="6" fill="var(--accent2)"/><text x="215" y="250" fill="var(--accent2)" font-size="11">minimum</text>
+      <text x="150" y="35" fill="var(--purple)" font-size="12">Loss (MSE)</text>
+    </svg>
+    <div class="svg-cap">Gradient Descent: kosa shaklidagi loss yuzasida qizil nuqtadan yashil (minimum) tomon qadamba-qadam tushish.</div>
+  </div>
+
+  <h3><span class="ico">💻</span>D) Kod tahlili (qatorma-qator)</h3>
+  <div class="code-block">
+    <div class="code-head"><span>linear_regression.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression  <span class="cm"># Tayyor chiziqli model klassi</span>
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> mean_squared_error, r2_score  <span class="cm"># Baholash metrikalari</span>
+
+model = LinearRegression()  <span class="cm"># Modelni yaratamiz — hozircha "boʻsh", w va b hali yoʻq</span>
+model.fit(X_train, y_train)  <span class="cm"># Oʻqitish: eng yaxshi w va b ni topadi (analitik yechim orqali)</span>
+
+<span class="cm"># .coef_ = har bir belgining ogʻirligi (w), .intercept_ = b (kesim)</span>
+<span class="nb">print</span>(<span class="st">"Koeffitsientlar:"</span>, model.coef_)  <span class="cm"># Qaysi belgi natijaga qancha taʻsir qilishini koʻrsatadi</span>
+<span class="nb">print</span>(<span class="st">"Kesim (b):"</span>, model.intercept_)  <span class="cm"># x=0 boʻlganda bashorat qiymati</span>
+
+y_pred = model.predict(X_test)  <span class="cm"># Test datada bashorat: ŷ = w·x + b hisoblanadi</span>
+
+rmse = mean_squared_error(y_test, y_pred) ** <span class="nu">0.5</span>  <span class="cm"># RMSE — xato target oʻlchovida (sekund/$)</span>
+r2 = r2_score(y_test, y_pred)  <span class="cm"># R² — model dispersiyaning necha % ini tushuntiradi (1 = ideal)</span>
+<span class="nb">print</span>(<span class="st">f"RMSE={rmse:.2f}, R2={r2:.3f}"</span>)</code></pre>
+  </div>
+  <div class="box info"><b>Nega LinearRegression() da parametr yoʻq?</b> Sklearn'ning oddiy LinearRegression'i Gradient Descent emas, <b>analitik (Normal Equation)</b> yechimni ishlatadi — shu sabab learning_rate kerak emas. Katta datalarda esa <span class="tag">SGDRegressor</span> (gradient descent) yoki regularizatsiyali <span class="tag">Ridge</span>/<span class="tag">Lasso</span> ishlatiladi.</div>
+
+  <div class="pros-cons">
+    <div class="pros"><h4>✅ Afzalliklari</h4><ul><li>Juda tez va oddiy</li><li>Toʻliq tushunarli (koeffitsientlar oʻqiladi)</li><li>Kam data'da ham ishlaydi</li></ul></div>
+    <div class="cons"><h4>❌ Kamchiliklari</h4><ul><li>Faqat chiziqli bogʻlanishni topadi</li><li>Outlierlarga juda sezgir</li><li>Belgilar korrelyatsiyasidan aziyat chekadi</li></ul></div>
+  </div>
+  <div class="box"><b>🎯 Qachon ishlatish?</b> Tez baseline model kerak boʻlganda, bogʻlanish taxminan chiziqli boʻlsa, yoki belgilar taʻsirini izohlash muhim boʻlganda (masalan tibbiyot, iqtisod).</div>
+</section>
+
+<!-- ================= SECTION 2: LOGISTIC REGRESSION ================= -->
+<section id="s2">
+  <div class="sec-head"><span class="sec-num">2</span><h2>Logistic Regression (Logistik Regressiya)</h2></div>
+  <p class="sec-sub">Nomiga "regression" boʻlsa-da — bu <b>klassifikatsiya</b> algoritmi. "Ha/Yoʻq", "Spam/Spam emas" kabi ehtimolliklarni bashorat qiladi.</p>
+
+  <h3><span class="ico">🧠</span>A) Algoritm mohiyati & matematikasi</h3>
+  <p><strong>Muammo:</strong> Linear Regression −∞ dan +∞ gacha son beradi. Ammo ehtimollik faqat <b>0 va 1 oraligʻida</b> boʻlishi kerak. Yechim — chiziqli natijani <b>Sigmoid</b> funksiyasidan oʻtkazish.</p>
+  <div class="box q"><b>Bu boʻlmasa nima boʻlardi?</b> Chiziqli model bilan klassifikatsiya qilsak, bashorat 1.5 yoki −0.3 boʻlib qolardi — bu ehtimollik sifatida maʻnosiz. Sigmoid har qanday sonni chiroyli tarzda [0,1] ga "siqadi".</p>
+
+  <h4>Sigmoid funksiyasi</h4>
+  <div class="formula">σ(z) = 1 / (1 + e^−z),  bunda z = w·x + b
+    <span class="note">z=0 → σ=0.5 · z katta musbat → σ→1 · z katta manfiy → σ→0. Chiqish = "1-sinf" ehtimoli</span>
+  </div>
+
+  <h4>Log-Loss (Binary Cross-Entropy)</h4>
+  <p>MSE bu yerda ishlamaydi (loss yuzasi notekis boʻlib qoladi). Oʻrniga Log-Loss ishlatiladi: model ishonch bilan xato qilsa — juda katta jazo oladi.</p>
+  <div class="formula">L = −(1/n)·Σ [ y·log(ŷ) + (1−y)·log(1−ŷ) ]
+    <span class="note">y=1 boʻlsa faqat log(ŷ) qism ishlaydi; y=0 boʻlsa log(1−ŷ). Xato ishonch → log(kichik son) → katta jazo</span>
+  </div>
+
+  <h4>Klassifikatsiya chegarasi (Decision Boundary)</h4>
+  <p>Odatda <b>chegara = 0.5</b>: σ(z) ≥ 0.5 → sinf 1, aks holda sinf 0. Bu chegarani surish mumkin — masalan kasallik aniqlashda 0.3 qilib, koʻproq "ehtiyot" boʻlish (Recall'ni oshirish).</p>
+
+  <h3><span class="ico">🔢</span>B) Step-by-step matematik misol</h3>
+  <p>Talaba imtihondan oʻtadimi? Belgi = oʻqigan soati (x). Model allaqachon oʻrgangan: <span class="tag">z = 1.5·x − 4</span></p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Talaba</th><th>x (soat)</th><th>z=1.5x−4</th><th>σ(z) ehtimol</th><th>Bashorat (0.5)</th></tr></thead>
+    <tbody>
+      <tr><td>A</td><td>1</td><td>−2.5</td><td>0.076</td><td class="hl2">0 (oʻtmaydi)</td></tr>
+      <tr><td>B</td><td>2</td><td>−1.0</td><td>0.269</td><td class="hl2">0</td></tr>
+      <tr><td>C</td><td>3</td><td>0.5</td><td>0.622</td><td class="hl">1 (oʻtadi)</td></tr>
+      <tr><td>D</td><td>4</td><td>2.0</td><td>0.881</td><td class="hl">1</td></tr>
+    </tbody></table></div>
+  <p><strong>Hisob (talaba C):</strong> z = 1.5·3 − 4 = 0.5 → σ(0.5) = 1/(1+e^−0.5) = 1/(1+0.607) = <span class="hl">0.622</span>. 0.622 ≥ 0.5 boʻlgani uchun → <b>oʻtadi</b>. Chegara nuqtasi: z=0 → 1.5x−4=0 → x = <span class="hl2">2.67 soat</span>.</p>
+
+  <h3><span class="ico">📈</span>C) Vizual grafik (SVG)</h3>
+  <div class="svg-wrap">
+    <svg viewBox="0 0 460 280" width="460">
+      <line x1="40" y1="140" x2="440" y2="140" stroke="var(--border)"/>
+      <line x1="240" y1="30" x2="240" y2="250" stroke="var(--border)"/>
+      <path d="M40 235 C160 235 200 45 240 45 C240 45 240 45 240 45 C280 45 320 45 440 45" fill="none" stroke="var(--accent)" stroke-width="3"/>
+      <path d="M40 235 C150 233 210 140 240 140 C270 140 320 47 440 47" fill="none" stroke="var(--purple)" stroke-width="3"/>
+      <line x1="40" y1="92" x2="440" y2="92" stroke="var(--warn)" stroke-dasharray="5"/>
+      <text x="350" y="85" fill="var(--warn)" font-size="11">chegara = 0.5</text>
+      <text x="250" y="25" fill="var(--muted)" font-size="11">σ(z)=1</text>
+      <text x="250" y="260" fill="var(--muted)" font-size="11">σ(z)=0</text>
+      <text x="350" y="135" fill="var(--purple)" font-size="11">S-shakl (sigmoid)</text>
+    </svg>
+    <div class="svg-cap">Sigmoid egri chizigʻi har qanday z ni [0,1] ga aylantiradi. 0.5 chizigʻidan yuqorisi → sinf 1, pasti → sinf 0.</div>
+  </div>
+
+  <h3><span class="ico">💻</span>D) Kod tahlili (qatorma-qator)</h3>
+  <div class="code-block">
+    <div class="code-head"><span>logistic_regression.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression  <span class="cm"># Klassifikatsiya modeli</span>
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> accuracy_score, classification_report
+
+model = LogisticRegression(
+    C=<span class="nu">1.0</span>,        <span class="cm"># Regularizatsiya kuchi (teskari): kichik C = kuchli jazo = soddaroq model</span>
+    penalty=<span class="st">'l2'</span>,  <span class="cm"># L2 regularizatsiya — katta ogʻirliklarni jazolab overfitting'ni kamaytiradi</span>
+    max_iter=<span class="nu">1000</span>  <span class="cm"># Gradient descent maksimal qadamlar soni (konvergensiya uchun)</span>
+)
+model.fit(X_train, y_train)  <span class="cm"># Log-Loss'ni minimallashtirib w va b ni oʻrgatadi</span>
+
+y_pred = model.predict(X_test)  <span class="cm"># 0/1 sinflarni qaytaradi (chegara 0.5)</span>
+y_proba = model.predict_proba(X_test)[:, <span class="nu">1</span>]  <span class="cm"># "1-sinf" ehtimolini qaytaradi — chegarani oʻzgartirish uchun</span>
+
+<span class="nb">print</span>(accuracy_score(y_test, y_pred))  <span class="cm"># Umumiy toʻgʻrilik ulushi</span>
+<span class="nb">print</span>(classification_report(y_test, y_pred))  <span class="cm"># Precision/Recall/F1 — balanssiz data'da muhim</span></code></pre>
+  </div>
+  <div class="pros-cons">
+    <div class="pros"><h4>✅ Afzalliklari</h4><ul><li>Ehtimollik beradi (nafaqat sinf)</li><li>Tez, izohlanadi</li><li>Kuchli baseline</li></ul></div>
+    <div class="cons"><h4>❌ Kamchiliklari</h4><ul><li>Chiziqli chegara (murakkab shakllarni topolmaydi)</li><li>Feature engineering talab qiladi</li></ul></div>
+  </div>
+  <div class="box"><b>🎯 Qachon ishlatish?</b> Ikkilik (yoki multiclass) klassifikatsiyada tez, izohlanadigan baseline kerak boʻlganda — masalan spam filtri, chorn (churn) bashorati, kasallik skrining.</div>
+</section>
+
+<!-- ================= SECTION 3: METRICS ================= -->
+<section id="s3">
+  <div class="sec-head"><span class="sec-num">3</span><h2>ML Metrikalari</h2></div>
+  <p class="sec-sub">Modelni toʻgʻri baholash — eng muhim koʻnikma. Notoʻgʻri metrika = notoʻgʻri xulosa.</p>
+
+  <h3><span class="ico">📉</span>A) Regression metrikalari</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Metrika</th><th>Formula</th><th>Maʻnosi</th><th>Xususiyati</th></tr></thead>
+    <tbody>
+      <tr><td><b>MSE</b></td><td>(1/n)Σ(y−ŷ)²</td><td>Oʻrtacha kvadrat xato</td><td>Katta xatoni kuchli jazolaydi, birligi — kvadrat</td></tr>
+      <tr><td><b>RMSE</b></td><td>√MSE</td><td>MSE'ning ildizi</td><td>Target bilan bir oʻlchovda — talqin oson</td></tr>
+      <tr><td><b>MAE</b></td><td>(1/n)Σ|y−ŷ|</td><td>Oʻrtacha absolyut xato</td><td>Outlierlarga sezgir emas, barobar jazo</td></tr>
+      <tr><td><b>R²</b></td><td>1 − SSᵣₑₛ/SSₜₒₜ</td><td>Tushuntirilgan dispersiya ulushi</td><td>1=ideal, 0=oʻrtacha bilan bir xil, &lt;0=yomon</td></tr>
+    </tbody></table></div>
+  <div class="box info"><b>MAE vs RMSE tanlovi:</b> Agar katta xatolar juda xavfli boʻlsa (masalan tibbiyot) → RMSE. Agar outlierlar shovqin boʻlib, ularga eʻtibor bermaslik kerak boʻlsa → MAE. Sizning taxi loyihangizda RMSLE ishlatilgan (log fazoda RMSE) — chunki safar davomiyligi eksponensial taqsimlangan.</div>
+
+  <h3><span class="ico">🎯</span>A2) Classification metrikalari</h3>
+  <h4>Confusion Matrix (Chalkashlik matritsasi)</h4>
+  <p>Barcha klassifikatsiya metrikalarining poydevori. 4 ta yacheyka:</p>
+  <div class="svg-wrap">
+    <svg viewBox="0 0 400 240" width="400">
+      <rect x="120" y="40" width="120" height="80" fill="rgba(63,185,80,.2)" stroke="var(--border)"/>
+      <rect x="240" y="40" width="120" height="80" fill="rgba(248,81,73,.15)" stroke="var(--border)"/>
+      <rect x="120" y="120" width="120" height="80" fill="rgba(248,81,73,.15)" stroke="var(--border)"/>
+      <rect x="240" y="120" width="120" height="80" fill="rgba(63,185,80,.2)" stroke="var(--border)"/>
+      <text x="180" y="75" fill="var(--accent2)" font-size="13" text-anchor="middle" font-weight="bold">TP</text>
+      <text x="180" y="95" fill="var(--muted)" font-size="10" text-anchor="middle">toʻgʻri musbat</text>
+      <text x="300" y="75" fill="var(--danger)" font-size="13" text-anchor="middle" font-weight="bold">FN</text>
+      <text x="300" y="95" fill="var(--muted)" font-size="10" text-anchor="middle">oʻtkazib yuborilgan</text>
+      <text x="180" y="155" fill="var(--danger)" font-size="13" text-anchor="middle" font-weight="bold">FP</text>
+      <text x="180" y="175" fill="var(--muted)" font-size="10" text-anchor="middle">yolgʻon signal</text>
+      <text x="300" y="155" fill="var(--accent2)" font-size="13" text-anchor="middle" font-weight="bold">TN</text>
+      <text x="300" y="175" fill="var(--muted)" font-size="10" text-anchor="middle">toʻgʻri manfiy</text>
+      <text x="180" y="30" fill="var(--accent)" font-size="11" text-anchor="middle">Bashorat: 1</text>
+      <text x="300" y="30" fill="var(--accent)" font-size="11" text-anchor="middle">Bashorat: 0</text>
+      <text x="110" y="85" fill="var(--accent)" font-size="11" text-anchor="end">Real:1</text>
+      <text x="110" y="165" fill="var(--accent)" font-size="11" text-anchor="end">Real:0</text>
+    </svg>
+    <div class="svg-cap">TP/TN = toʻgʻri. FP = yolgʻon signal (1-tur xato). FN = oʻtkazib yuborish (2-tur xato).</div>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Metrika</th><th>Formula</th><th>Savolga javob beradi</th></tr></thead>
+    <tbody>
+      <tr><td><b>Accuracy</b></td><td>(TP+TN)/(hammasi)</td><td>Umuman qancha toʻgʻri? (balanssiz data'da yolgʻon)</td></tr>
+      <tr><td><b>Precision</b></td><td>TP/(TP+FP)</td><td>"1" degan bashoratlarim qancha ishonchli?</td></tr>
+      <tr><td><b>Recall</b></td><td>TP/(TP+FN)</td><td>Haqiqiy "1"larni qanchasini topdim?</td></tr>
+      <tr><td><b>F1-Score</b></td><td>2·(P·R)/(P+R)</td><td>Precision va Recall muvozanati (garmonik oʻrtacha)</td></tr>
+      <tr><td><b>ROC-AUC</b></td><td>egri ostidagi yuza</td><td>Barcha chegaralar boʻyicha ajratish qobiliyati (1=ideal, 0.5=tasodif)</td></tr>
+    </tbody></table></div>
+
+  <h3><span class="ico">🔢</span>B) Step-by-step misol</h3>
+  <p>100 ta bemor. 10 tasi haqiqatan kasal. Model: 8 kasalni topdi (TP=8), 2 kasalni oʻtkazib yubordi (FN=2), 5 sogʻlomni kasal dedi (FP=5), 85 sogʻlomni toʻgʻri topdi (TN=85).</p>
+  <ul>
+    <li><strong>Accuracy</strong> = (8+85)/100 = <span class="hl">0.93</span> — yaxshi koʻrinadi, lekin aldamchi!</li>
+    <li><strong>Precision</strong> = 8/(8+5) = <span class="hl">0.615</span> — kasal degan har 10 tadan ~6 tasi haqiqatan kasal</li>
+    <li><strong>Recall</strong> = 8/(8+2) = <span class="hl">0.80</span> — haqiqiy kasallarning 80% ini topdik</li>
+    <li><strong>F1</strong> = 2·(0.615·0.8)/(0.615+0.8) = <span class="hl">0.696</span></li>
+  </ul>
+  <div class="box warn"><b>Diqqat — Accuracy tuzogʻi!</b> Agar model hamma uchun "sogʻlom" desa: Accuracy = 90/100 = 0.90! Ammo Recall = 0 (birorta kasalni topmadi). Balanssiz data'da <b>hech qachon</b> faqat Accuracy'ga ishonmang.</div>
+
+  <h3><span class="ico">💻</span>D) Kod tahlili</h3>
+  <div class="code-block">
+    <div class="code-head"><span>metrics.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">from</span> sklearn.metrics <span class="kw">import</span> (confusion_matrix, precision_score,
+    recall_score, f1_score, roc_auc_score, mean_squared_error)
+
+<span class="cm"># --- Klassifikatsiya ---</span>
+cm = confusion_matrix(y_test, y_pred)  <span class="cm"># 2x2 matritsa: [[TN,FP],[FN,TP]]</span>
+p = precision_score(y_test, y_pred)  <span class="cm"># FP xarajatli boʻlsa muhim (masalan spam)</span>
+r = recall_score(y_test, y_pred)     <span class="cm"># FN xarajatli boʻlsa muhim (masalan rak diagnozi)</span>
+f1 = f1_score(y_test, y_pred)        <span class="cm"># P va R oʻrtasidagi muvozanat kerak boʻlsa</span>
+auc = roc_auc_score(y_test, y_proba) <span class="cm"># DIQQAT: sinf emas, EHTIMOLLIK (proba) beriladi!</span>
+
+<span class="cm"># --- Regression (log-target bilan) ---</span>
+rmse = mean_squared_error(y_true, y_pred) ** <span class="nu">0.5</span>  <span class="cm"># Asl oʻlchovga expm1 dan keyin</span></code></pre>
+  </div>
+</section>
+
+<!-- ================= SECTION 4: KNN & SVM ================= -->
+<section id="s4">
+  <div class="sec-head"><span class="sec-num">4</span><h2>KNN & SVM</h2></div>
+  <p class="sec-sub">Ikki klassik klassifikator: KNN — "qoʻshninga qarab hukm qil"; SVM — "eng keng yoʻlak bilan ajrat".</p>
+
+  <h3><span class="ico">🧠</span>A) KNN (K-Nearest Neighbors)</h3>
+  <p><strong>Mohiyati:</strong> Yangi nuqta uchun eng yaqin <b>K ta qoʻshni</b>ni topadi va ular orasida qaysi sinf koʻp boʻlsa — shuni tanlaydi (ovoz berish). Oʻqitish bosqichi <b>yoʻq</b> — shunchaki datani eslab qoladi ("lazy learning").</p>
+  <div class="box q"><b>Bu boʻlmasa nima boʻlardi?</b> KNN eng sodda "oʻxshashlik" gʻoyasini beradi: oʻxshash obyektlar oʻxshash sinfga tegishli. Hech qanday formula oʻrgatmaydi — toʻgʻridan-toʻgʻri masofaga tayanadi.</p>
+  <h4>Asosiy parametrlar</h4>
+  <ul>
+    <li><span class="tag">n_neighbors (K)</span> — nechta qoʻshni koʻriladi. Kichik K → shovqinga sezgir (overfit); katta K → chegara silliqlashadi (underfit).</li>
+    <li><span class="tag">metric</span> — masofa turi: euclidean (Evklid), manhattan, minkowski.</li>
+    <li><span class="tag">weights</span> — 'uniform' (barcha qoʻshni teng) yoki 'distance' (yaqinroq qoʻshni kuchliroq ovoz).</li>
+  </ul>
+  <div class="formula">d(a,b) = √[ (a₁−b₁)² + (a₂−b₂)² + ... ]<span class="note">Evklid masofasi — ikki nuqta orasidagi toʻgʻri chiziq uzunligi</span></div>
+
+  <h4>B) KNN step-by-step misol</h4>
+  <p>Yangi meva: shirinlik=6, oʻlcham=6. K=3 bilan sinfini topamiz.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Meva</th><th>Shirinlik</th><th>Oʻlcham</th><th>Sinf</th><th>Masofa (yangi 6,6 dan)</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>7</td><td>7</td><td>Olma</td><td class="hl">√(1+1)=1.41</td></tr>
+      <tr><td>2</td><td>8</td><td>6</td><td>Olma</td><td class="hl">√(4+0)=2.00</td></tr>
+      <tr><td>3</td><td>3</td><td>4</td><td>Uzum</td><td>√(9+4)=3.61</td></tr>
+      <tr><td>4</td><td>2</td><td>3</td><td>Uzum</td><td>√(16+9)=5.00</td></tr>
+      <tr><td>5</td><td>7</td><td>4</td><td>Olma</td><td class="hl">√(1+4)=2.24</td></tr>
+    </tbody></table></div>
+  <p><strong>Eng yaqin 3 ta:</strong> Meva1(1.41), Meva2(2.00), Meva5(2.24) — barchasi <b>Olma</b>. Ovoz: Olma 3, Uzum 0 → Bashorat = <span class="hl">Olma</span> 🍎</p>
+  <div class="box warn"><b>Scaling shart!</b> KNN masofaga tayangani uchun belgilarni <b>StandardScaler</b> bilan bir oʻlchovga keltirish MAJBURIY. Aks holda katta diapazonli belgi (masalan maosh) kichigini (yosh) bosib ketadi.</div>
+
+  <h3><span class="ico">🧠</span>A) SVM (Support Vector Machines)</h3>
+  <p><strong>Mohiyati:</strong> Ikki sinfni ajratadigan <b>eng keng "yoʻlak" (margin)</b>ga ega gipertekislikni topadi. Yoʻlak chetidagi nuqtalar — <b>support vectors</b> (tayanch vektorlar) deb ataladi; faqat ular chegarani belgilaydi.</p>
+  <h4>Asosiy tushunchalar</h4>
+  <ul>
+    <li><strong>Hyperplane (gipertekislik):</strong> sinflarni ajratuvchi chegara (2D da chiziq, 3D da tekislik).</li>
+    <li><strong>Margin:</strong> chegara bilan eng yaqin nuqtalar orasidagi masofa. SVM buni <b>maksimallashtiradi</b> — shuning uchun umumlashuvi kuchli.</li>
+    <li><strong>Kernel Trick:</strong> chiziqli ajralmaydigan datani <b>yuqori oʻlchamga</b> koʻtarib, u yerda chiziq bilan ajratadi — haqiqatda hisoblamasdan ("trick").</li>
+  </ul>
+  <h4>Asosiy parametrlar</h4>
+  <ul>
+    <li><span class="tag">C</span> — jazo kuchi. Katta C → kam xato lekin tor margin (overfit); kichik C → keng margin, baʻzi xatolarga toqat.</li>
+    <li><span class="tag">kernel</span> — 'linear', 'rbf' (radial), 'poly'. RBF eng koʻp ishlatiladi.</li>
+    <li><span class="tag">gamma</span> — RBF taʻsir radiusi. Katta gamma → har nuqta oʻz atrofiga taʻsir (overfit).</li>
+  </ul>
+
+  <h3><span class="ico">📈</span>C) Vizual grafik (SVG)</h3>
+  <div class="grid2">
+    <div class="svg-wrap">
+      <svg viewBox="0 0 280 240" width="280">
+        <line x1="40" y1="200" x2="250" y2="40" stroke="var(--accent)" stroke-width="2.5"/>
+        <line x1="60" y1="210" x2="270" y2="50" stroke="var(--muted)" stroke-dasharray="4"/>
+        <line x1="20" y1="190" x2="230" y2="30" stroke="var(--muted)" stroke-dasharray="4"/>
+        <circle cx="70" cy="70" r="7" fill="var(--pink)"/><circle cx="100" cy="50" r="7" fill="var(--pink)"/>
+        <circle cx="55" cy="110" r="7" fill="var(--pink)" stroke="var(--warn)" stroke-width="2"/>
+        <circle cx="200" cy="180" r="7" fill="var(--accent2)"/><circle cx="230" cy="160" r="7" fill="var(--accent2)"/>
+        <circle cx="175" cy="150" r="7" fill="var(--accent2)" stroke="var(--warn)" stroke-width="2"/>
+        <text x="90" y="230" fill="var(--muted)" font-size="10">sariq halqa = support vector</text>
+      </svg>
+      <div class="svg-cap">SVM: eng keng margin (punktir chegaralar) va support vektorlar.</div>
+    </div>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 280 240" width="280">
+        <circle cx="140" cy="120" r="80" fill="none" stroke="var(--accent)" stroke-dasharray="5"/>
+        <circle cx="140" cy="120" r="8" fill="var(--pink)"/><circle cx="110" cy="100" r="7" fill="var(--pink)"/><circle cx="165" cy="140" r="7" fill="var(--pink)"/>
+        <circle cx="140" cy="30" r="7" fill="var(--accent2)"/><circle cx="50" cy="120" r="7" fill="var(--accent2)"/><circle cx="220" cy="170" r="7" fill="var(--accent2)"/><circle cx="140" cy="210" r="7" fill="var(--accent2)"/>
+      </svg>
+      <div class="svg-cap">Kernel Trick: markazda pushti, atrofda yashil — toʻgʻri chiziq ajratolmaydi, RBF kernel doira bilan ajratadi.</div>
+    </div>
+  </div>
+
+  <h3><span class="ico">💻</span>D) Kod tahlili</h3>
+  <div class="code-block">
+    <div class="code-head"><span>knn_svm.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">from</span> sklearn.neighbors <span class="kw">import</span> KNeighborsClassifier
+<span class="kw">from</span> sklearn.svm <span class="kw">import</span> SVC
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> make_pipeline
+
+<span class="cm"># KNN — scaling BILAN birga (pipeline avtomat qiladi)</span>
+knn = make_pipeline(
+    StandardScaler(),  <span class="cm"># Belgilarni standartlash: masofa adolatli boʻlishi uchun</span>
+    KNeighborsClassifier(n_neighbors=<span class="nu">5</span>, weights=<span class="st">'distance'</span>)  <span class="cm"># 5 qoʻshni, yaqinroq kuchliroq</span>
+)
+knn.fit(X_train, y_train)  <span class="cm"># "Oʻqitish" = datani eslab qolish</span>
+
+<span class="cm"># SVM — RBF kernel bilan</span>
+svm = make_pipeline(
+    StandardScaler(),  <span class="cm"># SVM ham masofaga sezgir — scaling shart</span>
+    SVC(kernel=<span class="st">'rbf'</span>, C=<span class="nu">1.0</span>, gamma=<span class="st">'scale'</span>, probability=<span class="kw">True</span>)
+    <span class="cm"># rbf=egri chegara, C=1 muvozanat, gamma='scale' avto sozlash</span>
+)
+svm.fit(X_train, y_train)  <span class="cm"># Support vektorlarni va optimal marginni topadi</span></code></pre>
+  </div>
+  <div class="pros-cons">
+    <div class="pros"><h4>✅ Afzalliklari</h4><ul><li>KNN: oʻqitish yoʻq, tushunarli</li><li>SVM: yuqori oʻlchamda kuchli, aniq chegara</li></ul></div>
+    <div class="cons"><h4>❌ Kamchiliklari</h4><ul><li>KNN: katta data'da juda sekin bashorat</li><li>SVM: katta data'da sekin, sozlash qiyin</li></ul></div>
+  </div>
+</section>
+
+<!-- ================= SECTION 5: DECISION TREES ================= -->
+<section id="s5">
+  <div class="sec-head"><span class="sec-num">5</span><h2>Decision Trees (Qaror Daraxtlari)</h2></div>
+  <p class="sec-sub">"Ha/Yoʻq" savollar zanjiri bilan qaror qabul qiladigan model. Barcha ensemble usullarning (RF, XGBoost) asosiy "gʻishti".</p>
+
+  <h3><span class="ico">🧠</span>A) Algoritm mohiyati & matematikasi</h3>
+  <p><strong>Mohiyati:</strong> Daraxt datani <b>savollar bilan boʻlaklarga</b> ajratadi. Har bir tugun (node) bitta belgi boʻyicha shart qoʻyadi (masalan "yosh &gt; 30?"), toki har bir boʻlak imkon qadar "toza" (bir sinfli) boʻlguncha.</p>
+  <div class="box q"><b>Bu boʻlmasa nima boʻlardi?</b> Chiziqli modellar faqat toʻgʻri chegara chizadi. Daraxt esa <b>notekis, murakkab</b> chegaralar chizadi va belgilar orasidagi oʻzaro taʻsirni (interaction) avtomatik topadi. Scaling ham kerak emas!</p>
+
+  <h4>Boʻlinish mezoni: Gini va Entropy</h4>
+  <p>Qaysi savolni berish kerak? Har bir mumkin boʻlgan boʻlinishning <b>"tozalik"</b>ini oʻlchaymiz va eng koʻp tozalik beruvchisini tanlaymiz.</p>
+  <div class="grid2">
+    <div class="formula">Gini = 1 − Σ pᵢ²<span class="note">pᵢ = i-sinf ulushi. 0 = mutlaqo toza, 0.5 = maksimal aralash (2 sinf). Tez hisoblanadi</span></div>
+    <div class="formula">Entropy = −Σ pᵢ·log₂(pᵢ)<span class="note">0 = toza, 1 = maksimal noaniqlik. Logarifmli — sekinroq</span></div>
+  </div>
+
+  <h4>Information Gain (Axborot yutugʻi)</h4>
+  <div class="formula">IG = Impurity(ota) − Σ (nᵢ/n)·Impurity(bolaᵢ)
+    <span class="note">Boʻlinishdan oldingi va keyingi "iflloslik" farqi. Eng katta IG beruvchi savol tanlanadi</span>
+  </div>
+
+  <h4>Asosiy giperparametrlar</h4>
+  <ul>
+    <li><span class="tag">max_depth</span> — daraxt maksimal chuqurligi. Katta → overfit; kichik → underfit.</li>
+    <li><span class="tag">min_samples_split</span> — tugunni boʻlish uchun kerakli minimal namunalar soni.</li>
+    <li><span class="tag">min_samples_leaf</span> — barg (yakuniy tugun)da kamida nechta namuna boʻlishi.</li>
+    <li><span class="tag">criterion</span> — 'gini' yoki 'entropy'.</li>
+  </ul>
+
+  <h3><span class="ico">🔢</span>B) Step-by-step Gini hisobi</h3>
+  <p>10 ta odam. "Sport bilan shugʻullanadimi?" (target). Belgi: "yosh &lt; 30?"</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Guruh</th><th>Ha (sport)</th><th>Yoʻq</th><th>Jami</th><th>Gini</th></tr></thead>
+    <tbody>
+      <tr><td>Ota (butun)</td><td>6</td><td>4</td><td>10</td><td>1−(0.6²+0.4²)=<span class="hl2">0.48</span></td></tr>
+      <tr><td>yosh&lt;30 (chap)</td><td>5</td><td>1</td><td>6</td><td>1−(0.83²+0.17²)=<span class="hl">0.278</span></td></tr>
+      <tr><td>yosh≥30 (oʻng)</td><td>1</td><td>3</td><td>4</td><td>1−(0.25²+0.75²)=<span class="hl">0.375</span></td></tr>
+    </tbody></table></div>
+  <p><strong>Vaznlangan bolalar Gini:</strong> (6/10)·0.278 + (4/10)·0.375 = 0.167 + 0.15 = <span class="hl">0.317</span></p>
+  <p><strong>Information Gain:</strong> 0.48 − 0.317 = <span class="hl">0.163</span>. Bu musbat va katta — demak "yosh&lt;30" yaxshi savol! Daraxt shu belgini tanlaydi va boʻlinishni davom ettiradi.</p>
+
+  <h3><span class="ico">📈</span>C) Vizual grafik (SVG daraxt)</h3>
+  <div class="svg-wrap">
+    <svg viewBox="0 0 460 280" width="460">
+      <rect x="180" y="20" width="100" height="44" rx="8" fill="var(--bg2)" stroke="var(--accent)" stroke-width="2"/>
+      <text x="230" y="40" fill="var(--text)" font-size="12" text-anchor="middle">yosh &lt; 30 ?</text>
+      <text x="230" y="56" fill="var(--muted)" font-size="10" text-anchor="middle">Gini=0.48</text>
+      <line x1="200" y1="64" x2="110" y2="120" stroke="var(--accent2)" stroke-width="2"/>
+      <text x="140" y="95" fill="var(--accent2)" font-size="11">Ha</text>
+      <line x1="260" y1="64" x2="350" y2="120" stroke="var(--danger)" stroke-width="2"/>
+      <text x="310" y="95" fill="var(--danger)" font-size="11">Yoʻq</text>
+      <rect x="55" y="120" width="110" height="44" rx="8" fill="var(--bg2)" stroke="var(--purple)" stroke-width="2"/>
+      <text x="110" y="140" fill="var(--text)" font-size="11" text-anchor="middle">daromad&gt;X?</text>
+      <text x="110" y="156" fill="var(--muted)" font-size="10" text-anchor="middle">Gini=0.278</text>
+      <rect x="295" y="120" width="110" height="44" rx="8" fill="rgba(248,81,73,.15)" stroke="var(--border)"/>
+      <text x="350" y="146" fill="var(--danger)" font-size="12" text-anchor="middle" font-weight="bold">Sport: Yoʻq</text>
+      <line x1="85" y1="164" x2="55" y2="215" stroke="var(--border)"/><line x1="135" y1="164" x2="165" y2="215" stroke="var(--border)"/>
+      <rect x="10" y="215" width="90" height="40" rx="8" fill="rgba(63,185,80,.15)" stroke="var(--border)"/>
+      <text x="55" y="240" fill="var(--accent2)" font-size="11" text-anchor="middle" font-weight="bold">Sport: Ha</text>
+      <rect x="120" y="215" width="90" height="40" rx="8" fill="rgba(248,81,73,.15)" stroke="var(--border)"/>
+      <text x="165" y="240" fill="var(--danger)" font-size="11" text-anchor="middle" font-weight="bold">Sport: Yoʻq</text>
+    </svg>
+    <div class="svg-cap">Root'dan barglargacha "ha/yoʻq" savollar. Har boʻlinishda Gini kamayadi (tozalik ortadi).</div>
+  </div>
+
+  <h3><span class="ico">💻</span>D) Kod tahlili</h3>
+  <div class="code-block">
+    <div class="code-head"><span>decision_tree.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeClassifier, plot_tree
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+tree = DecisionTreeClassifier(
+    criterion=<span class="st">'gini'</span>,      <span class="cm"># Boʻlinish mezoni — gini tozalikni oʻlchaydi</span>
+    max_depth=<span class="nu">4</span>,           <span class="cm"># Chuqurlikni cheklab overfitting'ni oldini olamiz</span>
+    min_samples_leaf=<span class="nu">20</span>,   <span class="cm"># Har bargda kamida 20 namuna — shovqinli barglarni bloklaydi</span>
+    random_state=<span class="nu">42</span>       <span class="cm"># Takrorlanuvchanlik uchun</span>
+)
+tree.fit(X_train, y_train)  <span class="cm"># Rekursiv ravishda eng yaxshi boʻlinishlarni topadi</span>
+
+<span class="cm"># Qaysi belgi eng muhim boʻlganini koʻrsatadi (IG yigʻindisi boʻyicha)</span>
+<span class="nb">print</span>(tree.feature_importances_)
+plot_tree(tree, filled=<span class="kw">True</span>, feature_names=X.columns)  <span class="cm"># Daraxtni vizual chizadi</span>
+plt.show()</code></pre>
+  </div>
+  <div class="pros-cons">
+    <div class="pros"><h4>✅ Afzalliklari</h4><ul><li>Toʻliq izohlanadi (oq quti)</li><li>Scaling kerak emas</li><li>Notekis bogʻlanishlarni topadi</li></ul></div>
+    <div class="cons"><h4>❌ Kamchiliklari</h4><ul><li>Osongina overfit boʻladi</li><li>Beqaror (data ozgina oʻzgarsa — boshqa daraxt)</li></ul></div>
+  </div>
+  <div class="box info"><b>Muhim:</b> Bitta daraxt kuchsiz va beqaror. Aynan shu <b>beqarorlikni</b> Random Forest (koʻp daraxt oʻrtacha) va Boosting (daraxtlar ketma-ket xatoni tuzatadi) hal qiladi — keyingi boʻlimlarga oʻtamiz.</div>
+</section>
+
+<!-- ================= SECTION 6: ENSEMBLE INTRO ================= -->
+<section id="s6">
+  <div class="sec-head"><span class="sec-num">6</span><h2>Ensemble Learning'ga kirish</h2></div>
+  <p class="sec-sub">"Bitta ekspert emas, koʻp ekspert kengashi" — zaif modellarni birlashtirib kuchli model qurish sanʻati.</p>
+
+  <h3><span class="ico">🧠</span>Asosiy gʻoya</h3>
+  <p>Bitta daraxt xato qiladi. Ammo <b>koʻp daraxt</b> birlashsa, ularning xatolari oʻzaro "bekor" boʻladi va natija barqarorlashadi. Ikki asosiy strategiya bor: <b>Bagging</b> va <b>Boosting</b>.</p>
+
+  <h3><span class="ico">⚖️</span>Bagging vs Boosting — asosiy farq</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Xususiyat</th><th>Bagging (Random Forest)</th><th>Boosting (XGBoost, LGBM)</th></tr></thead>
+    <tbody>
+      <tr><td>Oʻqitish tartibi</td><td class="hl">Parallel (mustaqil)</td><td class="hl2">Ketma-ket (bir-biriga bogʻliq)</td></tr>
+      <tr><td>Har daraxt nima qiladi</td><td>Butun masalani mustaqil yechadi</td><td>Oldingining <b>xatosini</b> tuzatadi</td></tr>
+      <tr><td>Asosiy maqsad</td><td><b>Variance</b>ni kamaytirish (overfit'ga qarshi)</td><td><b>Bias</b>ni kamaytirish (aniqlikni oshirish)</td></tr>
+      <tr><td>Daraxt turi</td><td>Chuqur, kuchli daraxtlar</td><td>Sayoz, zaif daraxtlar (stumps)</td></tr>
+      <tr><td>Birlashtirish</td><td>Oʻrtacha / ovoz berish</td><td>Vaznlangan yigʻindi</td></tr>
+      <tr><td>Overfit xavfi</td><td>Past (barqaror)</td><td>Yuqori (ehtiyot boʻlish kerak)</td></tr>
+    </tbody></table></div>
+
+  <div class="svg-wrap">
+    <svg viewBox="0 0 460 220" width="460">
+      <text x="115" y="20" fill="var(--accent)" font-size="13" text-anchor="middle" font-weight="bold">BAGGING (parallel)</text>
+      <rect x="60" y="40" width="40" height="30" rx="5" fill="var(--bg2)" stroke="var(--accent)"/><rect x="110" y="40" width="40" height="30" rx="5" fill="var(--bg2)" stroke="var(--accent)"/><rect x="160" y="40" width="40" height="30" rx="5" fill="var(--bg2)" stroke="var(--accent)"/>
+      <text x="80" y="60" fill="var(--text)" font-size="11" text-anchor="middle">T1</text><text x="130" y="60" fill="var(--text)" font-size="11" text-anchor="middle">T2</text><text x="180" y="60" fill="var(--text)" font-size="11" text-anchor="middle">T3</text>
+      <line x1="80" y1="70" x2="115" y2="110" stroke="var(--border)"/><line x1="130" y1="70" x2="115" y2="110" stroke="var(--border)"/><line x1="180" y1="70" x2="115" y2="110" stroke="var(--border)"/>
+      <rect x="75" y="110" width="80" height="28" rx="6" fill="rgba(63,185,80,.15)" stroke="var(--accent2)"/><text x="115" y="129" fill="var(--accent2)" font-size="11" text-anchor="middle">Oʻrtacha</text>
+      <text x="345" y="20" fill="var(--pink)" font-size="13" text-anchor="middle" font-weight="bold">BOOSTING (ketma-ket)</text>
+      <rect x="270" y="50" width="40" height="28" rx="5" fill="var(--bg2)" stroke="var(--pink)"/><text x="290" y="69" fill="var(--text)" font-size="11" text-anchor="middle">T1</text>
+      <line x1="310" y1="64" x2="340" y2="64" stroke="var(--warn)" stroke-width="2" marker-end="url(#ar)"/>
+      <rect x="340" y="50" width="40" height="28" rx="5" fill="var(--bg2)" stroke="var(--pink)"/><text x="360" y="69" fill="var(--text)" font-size="11" text-anchor="middle">T2</text>
+      <line x1="380" y1="64" x2="410" y2="64" stroke="var(--warn)" stroke-width="2"/>
+      <rect x="410" y="50" width="40" height="28" rx="5" fill="var(--bg2)" stroke="var(--pink)"/><text x="430" y="69" fill="var(--text)" font-size="11" text-anchor="middle">T3</text>
+      <text x="360" y="110" fill="var(--muted)" font-size="10" text-anchor="middle">har biri oldingining</text>
+      <text x="360" y="124" fill="var(--muted)" font-size="10" text-anchor="middle">xatosini tuzatadi</text>
+    </svg>
+    <div class="svg-cap">Chapda: daraxtlar mustaqil, natija oʻrtachalanadi. Oʻngda: har daraxt oldingining qoldiq xatosiga oʻrgatiladi.</div>
+  </div>
+  <div class="box q"><b>Bias-Variance intuisiyasi:</b> <b>Bias</b> = model juda sodda, dataga yetib bormaydi (underfit). <b>Variance</b> = model juda murakkab, shovqinni ham yodlaydi (overfit). Bagging variance'ni, Boosting bias'ni nishonga oladi. Ideal model — ikkalasini muvozanatlaydi.</div>
+</section>
+
+<!-- ================= SECTION 7: RANDOM FOREST ================= -->
+<section id="s7">
+  <div class="sec-head"><span class="sec-num">7</span><h2>Random Forest</h2></div>
+  <p class="sec-sub">Koʻp qaror daraxtidan iborat "oʻrmon". Bagging + tasodifiy belgilar = barqaror, kuchli, kam overfit model.</p>
+
+  <h3><span class="ico">🧠</span>A) Algoritm mohiyati</h3>
+  <p><strong>Ikki xil tasodifiylik</strong> Random Forest'ning siri:</p>
+  <ul>
+    <li><strong>1. Bootstrap Aggregation (Bagging):</strong> Har daraxt datadan <b>tasodifiy, qaytariladigan namuna</b> (bootstrap sample) oladi. Har daraxt biroz boshqa data koʻradi.</li>
+    <li><strong>2. Feature Randomness:</strong> Har boʻlinishda barcha belgilar emas, <b>tasodifiy qism</b> (masalan √p ta) tanlanadi. Bu daraxtlarni bir-biridan farqlantiradi (dekorrelyatsiya).</li>
+  </ul>
+  <div class="box q"><b>Nega tasodifiy belgi?</b> Agar bitta belgi juda kuchli boʻlsa, hamma daraxt uni tanlab bir xil boʻlib qolardi — oʻrtachalash foydasi yoʻqoladi. Tasodifiylik daraxtlarni <b>xilma-xil</b> qiladi, xilma-xillik esa xatolarni bekor qiladi.</p>
+
+  <h4>OOB Error (Out-of-Bag)</h4>
+  <p>Bootstrap'da har daraxt uchun ~37% data <b>tanlanmay qoladi</b> (out-of-bag). Bu "koʻrilmagan" data'da daraxtni sinash mumkin — <b>bepul validatsiya</b>, alohida test set kerak emas!</p>
+
+  <h4>Asosiy giperparametrlar (har biri sodda tilda)</h4>
+  <ul>
+    <li><span class="tag">n_estimators</span> = daraxtlar soni. Koʻproq = barqarorroq (lekin sekinroq). Odatda 100–500.</li>
+    <li><span class="tag">max_depth</span> = har daraxt chuqurligi. RF'da odatda chuqur (None) qoldiriladi.</li>
+    <li><span class="tag">max_features</span> = har boʻlinishda koʻriladigan belgilar soni ('sqrt' = √p, klassifikatsiya standarti).</li>
+    <li><span class="tag">min_samples_leaf</span> = bargdagi minimal namuna — shovqinga qarshi.</li>
+    <li><span class="tag">bootstrap</span> = True (namunani qaytarish bilan olish).</li>
+    <li><span class="tag">oob_score</span> = True (OOB validatsiyani yoqadi).</li>
+  </ul>
+
+  <h3><span class="ico">🔢</span>B) Step-by-step misol</h3>
+  <p>3 ta daraxt yangi mijoz uchun "kredit qaytaradimi?" degan savolga ovoz beradi:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Daraxt</th><th>Koʻrgan bootstrap namunasi</th><th>Bashorat</th></tr></thead>
+    <tbody>
+      <tr><td>T1</td><td>Namuna A (daromad, yosh belgilari)</td><td class="hl">Ha</td></tr>
+      <tr><td>T2</td><td>Namuna B (qarz, ish belgilari)</td><td class="hl2">Yoʻq</td></tr>
+      <tr><td>T3</td><td>Namuna C (daromad, qarz belgilari)</td><td class="hl">Ha</td></tr>
+    </tbody></table></div>
+  <p><strong>Klassifikatsiya (ovoz):</strong> Ha=2, Yoʻq=1 → <span class="hl">Ha</span>. <strong>Regressiyada:</strong> masalan 3 daraxt 700, 660, 680 desa → oʻrtacha = <span class="hl">680</span>.</p>
+
+  <h3><span class="ico">📈</span>C) Vizual grafik</h3>
+  <div class="svg-wrap">
+    <svg viewBox="0 0 460 200" width="460">
+      <text x="70" y="20" fill="var(--accent2)" font-size="11" text-anchor="middle">Daraxt 1</text>
+      <text x="230" y="20" fill="var(--accent2)" font-size="11" text-anchor="middle">Daraxt 2</text>
+      <text x="390" y="20" fill="var(--accent2)" font-size="11" text-anchor="middle">Daraxt N</text>
+      <g stroke="var(--accent)" stroke-width="1.5" fill="none">
+        <path d="M70 30 L50 55 M70 30 L90 55 M50 55 L40 78 M50 55 L60 78"/>
+        <path d="M230 30 L210 55 M230 30 L250 55 M250 55 L240 78 M250 55 L262 78"/>
+        <path d="M390 30 L370 55 M390 30 L410 55 M370 55 L360 78 M370 55 L382 78"/>
+      </g>
+      <circle cx="70" cy="30" r="4" fill="var(--accent)"/><circle cx="230" cy="30" r="4" fill="var(--accent)"/><circle cx="390" cy="30" r="4" fill="var(--accent)"/>
+      <line x1="70" y1="95" x2="230" y2="140" stroke="var(--border)"/><line x1="230" y1="95" x2="230" y2="140" stroke="var(--border)"/><line x1="390" y1="95" x2="230" y2="140" stroke="var(--border)"/>
+      <rect x="150" y="140" width="160" height="36" rx="8" fill="rgba(63,185,80,.15)" stroke="var(--accent2)"/>
+      <text x="230" y="163" fill="var(--accent2)" font-size="12" text-anchor="middle" font-weight="bold">Ovoz / Oʻrtacha → Yakuniy</text>
+    </svg>
+    <div class="svg-cap">N ta mustaqil daraxt bashorat qiladi, soʻng ovoz (klassifikatsiya) yoki oʻrtacha (regressiya) olinadi.</div>
+  </div>
+
+  <h3><span class="ico">💻</span>D) Kod tahlili</h3>
+  <div class="code-block">
+    <div class="code-head"><span>random_forest.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestRegressor
+
+rf = RandomForestRegressor(
+    n_estimators=<span class="nu">300</span>,      <span class="cm"># 300 ta daraxt — koʻproq = barqarorroq, sekinroq</span>
+    max_depth=<span class="kw">None</span>,        <span class="cm"># Daraxtlar toʻla oʻssin — oʻrtachalash overfit'ni ushlab turadi</span>
+    max_features=<span class="st">'sqrt'</span>,  <span class="cm"># Har boʻlinishda √p ta belgi — daraxtlarni xilma-xil qiladi</span>
+    min_samples_leaf=<span class="nu">5</span>,    <span class="cm"># Bargda kamida 5 namuna — shovqinni kamaytiradi</span>
+    bootstrap=<span class="kw">True</span>,        <span class="cm"># Qaytariladigan tasodifiy namuna (bagging asosi)</span>
+    oob_score=<span class="kw">True</span>,        <span class="cm"># Bepul OOB validatsiya (~37% koʻrilmagan data)</span>
+    n_jobs=-<span class="nu">1</span>,             <span class="cm"># Barcha CPU yadrolari — parallel oʻqitish (daraxtlar mustaqil)</span>
+    random_state=<span class="nu">42</span>
+)
+rf.fit(X_train, y_train)  <span class="cm"># Har daraxt oʻz bootstrap namunasida mustaqil oʻrgatiladi</span>
+<span class="nb">print</span>(<span class="st">"OOB R2:"</span>, rf.oob_score_)  <span class="cm"># Test set'siz baholash</span>
+<span class="nb">print</span>(rf.feature_importances_)  <span class="cm"># Qaysi belgi eng koʻp IG bergan</span></code></pre>
+  </div>
+  <div class="pros-cons">
+    <div class="pros"><h4>✅ Afzalliklari</h4><ul><li>Kam overfit, barqaror</li><li>Sozlash kam kerak, "ishlaydi"</li><li>Feature importance beradi</li><li>OOB bepul validatsiya</li></ul></div>
+    <div class="cons"><h4>❌ Kamchiliklari</h4><ul><li>Boosting'dan biroz kam aniq</li><li>Katta model (xotira)</li><li>Ekstrapolyatsiya qilolmaydi</li></ul></div>
+  </div>
+  <div class="box"><b>🎯 Qachon ishlatish?</b> Kuchli, ishonchli baseline sifatida deyarli har doim. Tabular (jadval) data'da ajoyib. Sozlashga vaqt yoʻq boʻlganda ideal.</div>
+</section>
+
+<!-- ================= SECTION 8: BOOSTING FAMILY ================= -->
+<section id="s8">
+  <div class="sec-head"><span class="sec-num">8</span><h2>Boosting Oilasi</h2></div>
+  <p class="sec-sub">Zaif daraxtlarni ketma-ket qoʻshib, har biri oldingining xatosini tuzatadigan eng kuchli tabular ML usullari.</p>
+
+  <!-- 8a AdaBoost -->
+  <h3><span class="ico">8️⃣a</span>AdaBoost (Adaptive Boosting)</h3>
+  <p><strong>Mohiyati:</strong> Har iteratsiyada <b>xato bashorat qilingan namunalarning vaznini oshiradi</b>. Keyingi daraxt koʻproq shu "qiyin" namunalarga eʻtibor beradi. Zaif daraxtlar odatda <b>stumps</b> (1 chuqurlikli daraxt).</p>
+  <h4>Vaznlarni yangilash mantiqi</h4>
+  <ol>
+    <li>Barcha namunaga teng vazn beramiz: w = 1/n.</li>
+    <li>Zaif daraxt oʻrgatamiz → xatolik darajasini (err) hisoblaymiz.</li>
+    <li>Daraxt "ovozi" (ogʻirligi): α = ½·ln((1−err)/err). Kam xato → katta α.</li>
+    <li>Xato namunalar vazni <b>oshadi</b>, toʻgʻrilari <b>kamayadi</b> → keyingi daraxt qiyinlariga qaraydi.</li>
+  </ol>
+  <div class="formula">αₜ = ½ · ln((1 − errₜ) / errₜ)<span class="note">err = 0.5 (tasodif) → α=0 (foydasiz); err kichik → α katta (kuchli ovoz)</span></div>
+  <div class="box info"><b>Misol:</b> err=0.3 boʻlsa α = 0.5·ln(0.7/0.3) = 0.5·ln(2.33) = <span class="hl">0.42</span>. Bu daraxt yakuniy ovozda 0.42 ogʻirlik bilan qatnashadi.</div>
+
+  <!-- 8b Gradient Boosting -->
+  <h3><span class="ico">8️⃣b</span>Gradient Boosting</h3>
+  <p><strong>Mohiyati:</strong> AdaBoost vaznlarni oʻzgartirsa, Gradient Boosting har daraxtni oldingi modelning <b>qoldiq xatosiga (residual)</b> oʻrgatadi. Yaʻni har daraxt "qancha yetishmayapti?" savoliga javob beradi.</p>
+  <h4>Residual (qoldiq) mantiqi</h4>
+  <div class="formula">yangi_bashorat = eski_bashorat + η · daraxt(residual)
+    <span class="note">η (eta) = learning_rate. Residual = haqiqiy − hozirgi bashorat. Kichik qadamlar bilan xatoni kamaytiradi</span>
+  </div>
+
+  <h4>B) Step-by-step matematik misol (siz soʻraganingizdek!)</h4>
+  <p>Uy narxini bashorat qilamiz. learning_rate η = 0.1.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Uy</th><th>Haqiqiy narx (y)</th><th>1-bashorat = oʻrtacha</th><th>Residual (y − ŷ₀)</th></tr></thead>
+    <tbody>
+      <tr><td>A</td><td>100</td><td>200</td><td class="hl2">−100</td></tr>
+      <tr><td>B</td><td>200</td><td>200</td><td class="hl2">0</td></tr>
+      <tr><td>C</td><td>300</td><td>200</td><td class="hl2">+100</td></tr>
+    </tbody></table></div>
+  <p><strong>1-qadam:</strong> Boshlangʻich bashorat = oʻrtacha = (100+200+300)/3 = <span class="hl">200</span>.</p>
+  <p><strong>2-qadam:</strong> Residuallarni hisoblaymiz: −100, 0, +100 (yuqoridagi jadval).</p>
+  <p><strong>3-qadam:</strong> Yangi daraxt shu residuallarni bashorat qiladi. Faraz: daraxt A uchun −90, C uchun +90 chiqardi (shart qoʻyib boʻlib).</p>
+  <p><strong>4-qadam — Learning rate bilan yangilash:</strong></p>
+  <ul>
+    <li>Uy A: 200 + 0.1·(−90) = 200 − 9 = <span class="hl">191</span> (100 ga yaqinlashdi ✓)</li>
+    <li>Uy C: 200 + 0.1·(+90) = 200 + 9 = <span class="hl">209</span> (300 ga yaqinlashdi ✓)</li>
+  </ul>
+  <p><strong>5-qadam:</strong> Yangi residuallar hisoblanadi (A: 100−191=−91...) va <b>keyingi daraxt</b> yana ularni tuzatadi. Bu jarayon n_estimators marta takrorlanib, xato asta-sekin kamayadi.</p>
+  <div class="box warn"><b>Nega kichik qadam (η=0.1)?</b> Katta η tez oʻrgatadi lekin "sakrab" oʻtib overfit qiladi. Kichik η + koʻp daraxt = aniqroq, barqarorroq. Klassik kelishuv: past learning_rate, yuqori n_estimators.</div>
+
+  <h4>Asosiy giperparametrlar</h4>
+  <ul>
+    <li><span class="tag">n_estimators</span> = daraxtlar (bosqichlar) soni.</li>
+    <li><span class="tag">learning_rate</span> = har daraxt hissasi (odatda 0.01–0.1).</li>
+    <li><span class="tag">max_depth</span> = har daraxt chuqurligi (odatda 3–6 — zaif boʻlishi kerak).</li>
+    <li><span class="tag">subsample</span> = har daraxt uchun qatorlar ulushi (0.8 = 80% qator) — tasodifiylik qoʻshadi.</li>
+  </ul>
+
+  <div class="svg-wrap">
+    <svg viewBox="0 0 460 200" width="460">
+      <line x1="40" y1="170" x2="440" y2="170" stroke="var(--border)"/>
+      <line x1="40" y1="20" x2="40" y2="170" stroke="var(--border)"/>
+      <text x="20" y="100" fill="var(--muted)" font-size="11" transform="rotate(-90 20 100)">Xato</text>
+      <text x="240" y="195" fill="var(--muted)" font-size="11" text-anchor="middle">Daraxtlar soni</text>
+      <path d="M40 40 Q120 130 200 150 T440 162" fill="none" stroke="var(--pink)" stroke-width="2.5"/>
+      <text x="250" y="60" fill="var(--pink)" font-size="11">har daraxt xatoni kamaytiradi</text>
+    </svg>
+    <div class="svg-cap">Gradient Boosting: har yangi daraxt qoldiq xatoni yopib, umumiy xato asta-sekin tushadi.</div>
+  </div>
+
+  <!-- 8c XGBoost -->
+  <h3><span class="ico">8️⃣c</span>XGBoost (Extreme Gradient Boosting)</h3>
+  <p><strong>Mohiyati:</strong> Gradient Boosting'ning "kuchaytirilgan" versiyasi. Ikkita katta yangilik: <b>Regularizatsiya</b> (overfit'ga qarshi jazo) va <b>optimallashtirilgan hisoblash</b> (2-tartibli hosila, parallel, cache).</p>
+  <h4>Regularizatsiya</h4>
+  <p>XGBoost loss'ga daraxt murakkabligi uchun jazo qoʻshadi — shu sabab kam overfit qiladi:</p>
+  <div class="formula">Obj = Σ Loss(y, ŷ) + Σ [ γ·T + ½·λ·‖w‖² ]
+    <span class="note">T = barglar soni, γ (gamma) = barg qoʻshish jazosi, λ (lambda) = barg ogʻirliklariga L2 jazo</span>
+  </div>
+  <h4>Exact vs Approximate Greedy Algorithm</h4>
+  <ul>
+    <li><strong>Exact Greedy:</strong> har belgining <b>barcha</b> mumkin boʻlgan boʻlinish nuqtalarini tekshiradi — aniq lekin sekin, katta data'da ogʻir.</li>
+    <li><strong>Approximate:</strong> belgilarni <b>kvantillarga (histogram)</b> boʻlib, faqat nomzod nuqtalarni tekshiradi — ancha tez, deyarli bir xil aniqlik. Katta data uchun standart.</li>
+  </ul>
+  <h4>Asosiy giperparametrlar (inline izohli)</h4>
+  <ul>
+    <li><span class="tag">n_estimators</span> = daraxtlar soni.</li>
+    <li><span class="tag">learning_rate</span> (eta) = har daraxt hissasi (0.01–0.3).</li>
+    <li><span class="tag">max_depth</span> = daraxt chuqurligi (3–10).</li>
+    <li><span class="tag">subsample</span>=0.8 = har daraxt uchun qatorlarning 80% i tasodifiy olinadi (variance kamayadi).</li>
+    <li><span class="tag">colsample_bytree</span>=0.8 = har daraxt uchun ustunlarning (belgilarning) 80% i tasodifiy olinadi.</li>
+    <li><span class="tag">reg_lambda</span> (λ) = L2 regularizatsiya; <span class="tag">reg_alpha</span> (α) = L1; <span class="tag">gamma</span> (γ) = boʻlinish minimal foydasi.</li>
+  </ul>
+  <div class="code-block">
+    <div class="code-head"><span>xgboost_model.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">from</span> xgboost <span class="kw">import</span> XGBRegressor
+
+xgb = XGBRegressor(
+    n_estimators=<span class="nu">1000</span>,       <span class="cm"># Koʻp daraxt + early stopping bilan optimalni topamiz</span>
+    learning_rate=<span class="nu">0.05</span>,     <span class="cm"># Kichik qadam — aniqroq, overfit kamroq</span>
+    max_depth=<span class="nu">6</span>,             <span class="cm"># Har daraxt 6 qatlam — murakkab bogʻlanishlarni tutadi</span>
+    subsample=<span class="nu">0.8</span>,           <span class="cm"># Qatorlarning 80% i (satrlar) — tasodifiylik, variance↓</span>
+    colsample_bytree=<span class="nu">0.8</span>,    <span class="cm"># Ustunlarning 80% i (belgilar) — daraxtlarni dekorrelyatsiya</span>
+    reg_lambda=<span class="nu">1.0</span>,          <span class="cm"># L2 regularizatsiya — katta barg ogʻirliklarini jazolaydi</span>
+    tree_method=<span class="st">'hist'</span>,      <span class="cm"># Histogram (approximate) — katta data'da tez</span>
+    random_state=<span class="nu">42</span>, n_jobs=-<span class="nu">1</span>
+)
+xgb.fit(X_train, y_train,
+    eval_set=[(X_val, y_val)],       <span class="cm"># Validatsiyada xatoni kuzatamiz</span>
+    verbose=<span class="nu">100</span>)                  <span class="cm"># Har 100 daraxtda log chiqaradi</span></code></pre>
+  </div>
+
+  <!-- 8d LightGBM -->
+  <h3><span class="ico">8️⃣d</span>LightGBM</h3>
+  <p><strong>Nega "Light" va nega tez?</strong> Uch texnika: <b>Leaf-wise oʻsish</b>, <b>GOSS</b> va <b>EFB</b>. Katta data'da XGBoost'dan sezilarli tez, shuning uchun "Light" (yengil/tez).</p>
+  <h4>Leaf-wise vs Level-wise oʻsish</h4>
+  <ul>
+    <li><strong>XGBoost (Level-wise):</strong> daraxtni <b>qavat-qavat</b>, bir tekis oʻstiradi — muvozanatli lekin baʻzi keraksiz boʻlinishlar.</li>
+    <li><strong>LightGBM (Leaf-wise):</strong> <b>eng koʻp xato kamaytiradigan bargni</b> tanlab oʻstiradi — tezroq xato tushadi, lekin overfit xavfi (shuning uchun <span class="tag">num_leaves</span> cheklanadi).</li>
+  </ul>
+  <div class="grid2">
+    <div class="svg-wrap">
+      <svg viewBox="0 0 200 160" width="200">
+        <circle cx="100" cy="20" r="6" fill="var(--accent)"/>
+        <circle cx="60" cy="70" r="6" fill="var(--accent)"/><circle cx="140" cy="70" r="6" fill="var(--accent)"/>
+        <circle cx="40" cy="120" r="6" fill="var(--accent)"/><circle cx="80" cy="120" r="6" fill="var(--accent)"/><circle cx="120" cy="120" r="6" fill="var(--accent)"/><circle cx="160" cy="120" r="6" fill="var(--accent)"/>
+        <g stroke="var(--border)"><line x1="100" y1="20" x2="60" y2="70"/><line x1="100" y1="20" x2="140" y2="70"/><line x1="60" y1="70" x2="40" y2="120"/><line x1="60" y1="70" x2="80" y2="120"/><line x1="140" y1="70" x2="120" y2="120"/><line x1="140" y1="70" x2="160" y2="120"/></g>
+      </svg>
+      <div class="svg-cap">Level-wise (XGBoost): muvozanatli, qavat-qavat.</div>
+    </div>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 200 160" width="200">
+        <circle cx="100" cy="20" r="6" fill="var(--pink)"/>
+        <circle cx="60" cy="65" r="6" fill="var(--pink)"/><circle cx="140" cy="65" r="6" fill="var(--pink)"/>
+        <circle cx="35" cy="110" r="6" fill="var(--pink)"/><circle cx="85" cy="110" r="6" fill="var(--pink)"/>
+        <circle cx="65" cy="150" r="6" fill="var(--pink)"/><circle cx="105" cy="150" r="6" fill="var(--pink)"/>
+        <g stroke="var(--border)"><line x1="100" y1="20" x2="60" y2="65"/><line x1="100" y1="20" x2="140" y2="65"/><line x1="60" y1="65" x2="35" y2="110"/><line x1="60" y1="65" x2="85" y2="110"/><line x1="85" y1="110" x2="65" y2="150"/><line x1="85" y1="110" x2="105" y2="150"/></g>
+      </svg>
+      <div class="svg-cap">Leaf-wise (LightGBM): eng foydali bargni chuqur oʻstiradi (nomutanosib).</div>
+    </div>
+  </div>
+  <h4>GOSS va EFB — tezlik siri</h4>
+  <ul>
+    <li><strong>GOSS</strong> (Gradient-based One-Side Sampling): katta gradientli (koʻp xato = koʻp "oʻrganish kerak") namunalarni saqlaydi, kichik gradientlilardan tasodifiy kam qismini oladi — tezlik oshadi, aniqlik saqlanadi.</li>
+    <li><strong>EFB</strong> (Exclusive Feature Bundling): bir vaqtda nolga teng boʻlmaydigan siyrak (sparse) belgilarni <b>bitta belgiga birlashtiradi</b> — belgilar soni kamayadi, tezlik oshadi.</li>
+  </ul>
+  <div class="code-block">
+    <div class="code-head"><span>lightgbm_model.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">import</span> lightgbm <span class="kw">as</span> lgb
+<span class="kw">from</span> lightgbm <span class="kw">import</span> LGBMRegressor
+
+lgb_model = LGBMRegressor(
+    objective=<span class="st">'regression'</span>,   <span class="cm"># Regressiya vazifasi (L2 loss)</span>
+    n_estimators=<span class="nu">1000</span>,        <span class="cm"># Koʻp daraxt + early stopping</span>
+    learning_rate=<span class="nu">0.05</span>,      <span class="cm"># Kichik qadam — barqaror oʻrganish</span>
+    num_leaves=<span class="nu">31</span>,            <span class="cm"># Leaf-wise oʻsish cheklovi — KATTA=overfit (max_depth oʻrnida asosiy)</span>
+    max_depth=-<span class="nu">1</span>,             <span class="cm"># -1 = cheklovsiz (num_leaves nazorat qiladi)</span>
+    subsample=<span class="nu">0.8</span>,           <span class="cm"># Qatorlarning 80% i (bagging) — variance↓</span>
+    colsample_bytree=<span class="nu">0.8</span>,    <span class="cm"># Ustunlarning 80% i — daraxtlarni xilma-xil qiladi</span>
+    random_state=<span class="nu">42</span>, n_jobs=-<span class="nu">1</span>
+)
+lgb_model.fit(X_train, y_train,
+    eval_set=[(X_train, y_train), (X_val, y_val)],
+    eval_names=[<span class="st">'train'</span>, <span class="st">'valid'</span>],
+    callbacks=[
+        lgb.early_stopping(<span class="nu">100</span>),   <span class="cm"># 100 daraxt yaxshilanmasa toʻxtaydi — overfit oldini oladi</span>
+        lgb.log_evaluation(<span class="nu">100</span>)   <span class="cm"># Har 100 daraxtda log</span>
+    ])</code></pre>
+  </div>
+
+  <!-- 8e CatBoost -->
+  <h3><span class="ico">8️⃣e</span>CatBoost (Categorical Boosting)</h3>
+  <p><strong>Mohiyati:</strong> Nomi — <b>Cat</b>egorical'dan. Kategorik belgilar (shahar, brend, rang) bilan <b>avtomatik va aqlli</b> ishlaydi — qoʻlda one-hot yoki label encoding kerak emas.</p>
+  <h4>Kategorik belgilar bilan ishlash mantiqi</h4>
+  <ul>
+    <li><strong>Ordered Target Encoding:</strong> kategoriyani target oʻrtachasi bilan almashtiradi, lekin <b>faqat oldingi qatorlardan</b> foydalanib — shu tarzda "target leakage" (kelajakni koʻrish)ning oldini oladi.</li>
+    <li><strong>Ordered Boosting:</strong> har namunaning bashorati uni oʻz ichiga olmagan model bilan qilinadi — overfit va bias kamayadi.</li>
+    <li><strong>Symmetric (oblivious) trees:</strong> har qatlamda bir xil shart — tez va regularizatsiyalangan.</li>
+  </ul>
+  <div class="code-block">
+    <div class="code-head"><span>catboost_model.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">from</span> catboost <span class="kw">import</span> CatBoostRegressor
+
+cat = CatBoostRegressor(
+    iterations=<span class="nu">1000</span>,          <span class="cm"># Daraxtlar soni</span>
+    learning_rate=<span class="nu">0.05</span>,      <span class="cm"># Oʻrganish qadami</span>
+    depth=<span class="nu">6</span>,                 <span class="cm"># Symmetric daraxt chuqurligi</span>
+    l2_leaf_reg=<span class="nu">3.0</span>,         <span class="cm"># L2 regularizatsiya — overfit'ga qarshi</span>
+    cat_features=[<span class="st">'city'</span>, <span class="st">'brand'</span>],  <span class="cm"># Kategorik ustunlar — encoding SHART EMAS, avto ishlanadi!</span>
+    random_state=<span class="nu">42</span>, verbose=<span class="nu">100</span>
+)
+cat.fit(X_train, y_train, eval_set=(X_val, y_val))  <span class="cm"># Ordered boosting bilan oʻrgatadi</span></code></pre>
+  </div>
+
+  <h3><span class="ico">🏁</span>Boosting oilasi — taqqoslash</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Model</th><th>Kuchli tomoni</th><th>Oʻsish turi</th><th>Qachon</th></tr></thead>
+    <tbody>
+      <tr><td>AdaBoost</td><td>Sodda, klassik</td><td>Vazn yangilash</td><td>Kichik, toza data</td></tr>
+      <tr><td>Gradient Boosting</td><td>Aniq, moslashuvchan</td><td>Level-wise</td><td>Oʻrta data, sozlash uchun vaqt bor</td></tr>
+      <tr><td>XGBoost</td><td>Regularizatsiya, barqaror</td><td>Level-wise</td><td>Kaggle, tabular "go-to"</td></tr>
+      <tr><td>LightGBM</td><td class="hl">Eng tez, katta data</td><td>Leaf-wise + GOSS/EFB</td><td>Katta data, koʻp belgi</td></tr>
+      <tr><td>CatBoost</td><td class="hl2">Kategorik belgilar</td><td>Symmetric + ordered</td><td>Koʻp kategorik ustun</td></tr>
+    </tbody></table></div>
+
+<!-- BOOST_MORE -->
+</section>
+
+<!-- ================= SECTION 9: END-TO-END PIPELINE ================= -->
+<section id="s9">
+  <div class="sec-head"><span class="sec-num">9</span><h2>End-to-End Real ML Pipeline</h2></div>
+  <p class="sec-sub">Haqiqiy loyiha: NYC Taxi safar davomiyligini bashorat qilish (sizning Kaggle loyihangiz asosida). Data tozalash → Feature Engineering → Train → Evaluate → Saqlash.</p>
+
+  <div class="box info"><b>Umumiy oqim:</b> Yuklab olish → EDA (tekshirish) → outlier/tozalash → target transform (log) → feature engineering (masofa, vaqt) → train/val/test split → LightGBM + early stopping → metrikalar (expm1 dan keyin) → modelni saqlash.</div>
+
+  <h3><span class="ico">1️⃣</span>Data yuklash va EDA</h3>
+  <div class="code-block">
+    <div class="code-head"><span>pipeline_1_eda.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">import</span> pandas <span class="kw">as</span> pd, numpy <span class="kw">as</span> np
+
+df = pd.read_csv(<span class="st">"taxi_data/train/train.csv"</span>)  <span class="cm"># 1.45M qatorli NYC taxi datasi</span>
+<span class="nb">print</span>(df.shape)          <span class="cm"># (1458644, 11) — hajmni tekshiramiz</span>
+<span class="nb">print</span>(df.isnull().sum()) <span class="cm"># Boʻsh qiymatlar bormi? (bu data'da yoʻq)</span>
+<span class="nb">print</span>(df.duplicated().sum())  <span class="cm"># Dublikatlar bormi?</span>
+<span class="nb">print</span>(df[<span class="st">'trip_duration'</span>].describe())  <span class="cm"># Target statistikasi — max=3.5M sek (~40 kun!) = outlier signal</span></code></pre>
+  </div>
+
+  <h3><span class="ico">2️⃣</span>Target transform (log)</h3>
+  <p>Safar davomiyligi kuchli oʻngga qiyshaygan (skewed). <b>log1p</b> uni normal taqsimotga yaqinlashtiradi → model yaxshiroq oʻrganadi.</p>
+  <div class="code-block">
+    <div class="code-head"><span>pipeline_2_target.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code>df[<span class="st">'log_time_duration'</span>] = np.log1p(df[<span class="st">'trip_duration'</span>])
+<span class="cm"># log1p(x)=log(1+x): 0 qiymatlar uchun ham xavfsiz; qiyshiqlikni kamaytiradi</span>
+<span class="cm"># Baholashda teskarisi: np.expm1(pred) bilan sekundga qaytariladi</span></code></pre>
+  </div>
+
+  <h3><span class="ico">3️⃣</span>Outlier tozalash va tekshirish</h3>
+  <div class="code-block">
+    <div class="code-head"><span>pipeline_3_clean.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="cm"># NYC chegaralari — shundan tashqaridagi koordinatalar xato/outlier</span>
+NYC_LAT_MIN, NYC_LAT_MAX = <span class="nu">40.49</span>, <span class="nu">40.92</span>
+NYC_LON_MIN, NYC_LON_MAX = -<span class="nu">74.26</span>, -<span class="nu">73.70</span>
+
+geo_mask = (  <span class="cm"># Chegaradan tashqaridagilarni belgilaymiz</span>
+    df[<span class="st">'pickup_latitude'</span>].between(NYC_LAT_MIN, NYC_LAT_MAX) &
+    df[<span class="st">'pickup_longitude'</span>].between(NYC_LON_MIN, NYC_LON_MAX) &
+    df[<span class="st">'dropoff_latitude'</span>].between(NYC_LAT_MIN, NYC_LAT_MAX) &
+    df[<span class="st">'dropoff_longitude'</span>].between(NYC_LON_MIN, NYC_LON_MAX)
+)
+df = df[geo_mask]  <span class="cm"># Faqat NYC ichidagi safarlarni qoldiramiz (~0.09% outlier oʻchadi)</span>
+
+df = df[(df[<span class="st">'trip_duration'</span>] &gt; <span class="nu">10</span>) &
+        (df[<span class="st">'trip_duration'</span>] &lt; <span class="nu">86400</span>)]  <span class="cm"># 10 sek–24 soat oraligʻi — aqlli chegara</span></code></pre>
+  </div>
+
+  <h3><span class="ico">4️⃣</span>Feature Engineering (masofa + vaqt)</h3>
+  <div class="code-block">
+    <div class="code-head"><span>pipeline_4_features.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">def</span> <span class="fn">haversine</span>(lat1, lon1, lat2, lon2):
+    <span class="cm"># Yer sferasi boʻyicha ikki nuqta orasidagi masofa (km) — eng muhim belgi</span>
+    R = <span class="nu">6371</span>  <span class="cm"># Yer radiusi (km)</span>
+    lat1, lon1, lat2, lon2 = <span class="nb">map</span>(np.radians, [lat1, lon1, lat2, lon2])
+    dlat, dlon = lat2 - lat1, lon2 - lon1
+    a = np.sin(dlat/<span class="nu">2</span>)**<span class="nu">2</span> + np.cos(lat1)*np.cos(lat2)*np.sin(dlon/<span class="nu">2</span>)**<span class="nu">2</span>
+    <span class="kw">return</span> R * <span class="nu">2</span> * np.arctan2(np.sqrt(a), np.sqrt(<span class="nu">1</span>-a))
+
+df[<span class="st">'distance_km'</span>] = haversine(df.pickup_latitude, df.pickup_longitude,
+                              df.dropoff_latitude, df.dropoff_longitude)
+<span class="cm"># --- Vaqt belgilarini ajratamiz (datetime'dan) ---</span>
+df[<span class="st">'pickup_datetime'</span>] = pd.to_datetime(df[<span class="st">'pickup_datetime'</span>])
+df[<span class="st">'pickup_hour'</span>]    = df.pickup_datetime.dt.hour     <span class="cm"># Soat — tirbandlik naqshi</span>
+df[<span class="st">'pickup_weekday'</span>] = df.pickup_datetime.dt.weekday  <span class="cm"># Hafta kuni</span>
+df[<span class="st">'pickup_month'</span>]   = df.pickup_datetime.dt.month
+df[<span class="st">'is_weekend'</span>]  = (df.pickup_weekday &gt;= <span class="nu">5</span>).astype(<span class="st">'int8'</span>)  <span class="cm"># Dam olish kuni?</span>
+df[<span class="st">'is_rush_hour'</span>] = (df.pickup_hour.between(<span class="nu">7</span>,<span class="nu">9</span>) |
+                       df.pickup_hour.between(<span class="nu">16</span>,<span class="nu">19</span>)).astype(<span class="st">'int8'</span>)  <span class="cm"># Tigʻiz soat?</span></code></pre>
+  </div>
+  <div class="box warn"><b>⚠ Leakage ogohlantirishi:</b> <span class="tag">dropoff_datetime</span>, <span class="tag">datetime_duration</span> yoki <span class="tag">speed_kmh</span> (davomiylikdan hisoblangan) belgilarini X ga <b>qoʻshmang</b> — ular targetni "ochib beradi" (leakage). Modelniz test'da 0.99 R² berib, realda ishlamaydi!</div>
+
+  <h3><span class="ico">5️⃣</span>Split → Train (LightGBM + early stopping)</h3>
+  <div class="code-block">
+    <div class="code-head"><span>pipeline_5_train.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">import</span> lightgbm <span class="kw">as</span> lgb
+<span class="kw">from</span> lightgbm <span class="kw">import</span> LGBMRegressor
+
+features = [<span class="st">'vendor_id'</span>,<span class="st">'passenger_count'</span>,<span class="st">'distance_km'</span>,
+    <span class="st">'pickup_hour'</span>,<span class="st">'pickup_weekday'</span>,<span class="st">'pickup_month'</span>,
+    <span class="st">'is_weekend'</span>,<span class="st">'is_rush_hour'</span>]  <span class="cm"># Leakagesiz belgilar</span>
+X, y = df[features], df[<span class="st">'log_time_duration'</span>]
+
+<span class="cm"># 70% train, 15% val, 15% test</span>
+X_tr, X_tmp, y_tr, y_tmp = train_test_split(X, y, test_size=<span class="nu">0.3</span>, random_state=<span class="nu">42</span>)
+X_val, X_te, y_val, y_te = train_test_split(X_tmp, y_tmp, test_size=<span class="nu">0.5</span>, random_state=<span class="nu">42</span>)
+
+model = LGBMRegressor(objective=<span class="st">'regression'</span>, n_estimators=<span class="nu">1000</span>,
+    learning_rate=<span class="nu">0.05</span>, num_leaves=<span class="nu">31</span>,
+    subsample=<span class="nu">0.8</span>, colsample_bytree=<span class="nu">0.8</span>,
+    random_state=<span class="nu">42</span>, n_jobs=-<span class="nu">1</span>)
+model.fit(X_tr, y_tr, eval_set=[(X_val, y_val)],
+    callbacks=[lgb.early_stopping(<span class="nu">100</span>), lgb.log_evaluation(<span class="nu">100</span>)])
+    <span class="cm"># early_stopping: val yaxshilanmasa toʻxtaydi → optimal daraxtlar soni</span></code></pre>
+  </div>
+
+  <h3><span class="ico">6️⃣</span>Evaluate (asl oʻlchovda)</h3>
+  <div class="code-block">
+    <div class="code-head"><span>pipeline_6_eval.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">from</span> sklearn.metrics <span class="kw">import</span> mean_absolute_error, mean_squared_error, r2_score
+
+y_pred_log = model.predict(X_te, num_iteration=model.best_iteration_)
+y_pred = np.expm1(y_pred_log)  <span class="cm"># log fazodan sekundga QAYTARAMIZ (muhim!)</span>
+y_true = np.expm1(y_te)
+
+mae  = mean_absolute_error(y_true, y_pred)             <span class="cm"># Oʻrtacha xato (sek)</span>
+rmse = mean_squared_error(y_true, y_pred) ** <span class="nu">0.5</span>      <span class="cm"># RMSE (sek)</span>
+r2   = r2_score(y_true, y_pred)                        <span class="cm"># Tushuntirilgan dispersiya</span>
+<span class="nb">print</span>(<span class="st">f"MAE={mae:.2f}s  RMSE={rmse:.2f}s  R2={r2:.4f}"</span>)
+<span class="cm"># Natija (loyihangizdan): MAE~30.85s, R2~0.96 — ajoyib!</span></code></pre>
+  </div>
+
+  <h3><span class="ico">7️⃣</span>Modelni saqlash</h3>
+  <div class="code-block">
+    <div class="code-head"><span>pipeline_7_save.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
+<pre><code><span class="kw">import</span> joblib
+
+joblib.dump(model, <span class="st">'taxi_lgbm_model.pkl'</span>)  <span class="cm"># Modelni diskka saqlaymiz (deploy uchun)</span>
+<span class="cm"># Keyinroq: model = joblib.load('taxi_lgbm_model.pkl')</span>
+<span class="cm"># DIQQAT: feature roʻyxati va tartibini ham saqlang — bashoratda bir xil boʻlishi shart!</span></code></pre>
+  </div>
+</section>
+
+<!-- ================= SECTION 10: GLOSSARY ================= -->
+<section id="s10">
+  <div class="sec-head"><span class="sec-num">10</span><h2>Terminlar & Izohlar Glossariysi</h2></div>
+  <p class="sec-sub">ML lugʻati — barcha asosiy tushuncha va parametrlar qisqa, tushunarli izoh bilan.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Termin</th><th>Qisqa izoh</th></tr></thead>
+    <tbody>
+      <tr><td><b>Overfitting</b></td><td>Model train'ni yodlaydi, lekin yangi data'da yomon ishlaydi. Juda murakkab model belgisi.</td></tr>
+      <tr><td><b>Underfitting</b></td><td>Model juda sodda, hatto train'da ham yaxshi ishlamaydi. Bogʻlanishni tutolmaydi.</td></tr>
+      <tr><td><b>Bias</b></td><td>Modelning tizimli xatosi (juda sodda faraz). Yuqori bias = underfit.</td></tr>
+      <tr><td><b>Variance</b></td><td>Model data oʻzgarishiga qanchalik sezgir. Yuqori variance = overfit.</td></tr>
+      <tr><td><b>Bias-Variance Tradeoff</b></td><td>Ikkalasini bir vaqtda kamaytirib boʻlmaydi — optimal muvozanat izlanadi.</td></tr>
+      <tr><td><b>Hyperparameter</b></td><td>Oʻqitishdan OLDIN qoʻlda beriladigan sozlama (masalan max_depth, learning_rate). Model oʻrganmaydi.</td></tr>
+      <tr><td><b>Parameter</b></td><td>Model oʻqish davomida OʻRGANADIGAN qiymat (masalan ogʻirliklar w, b).</td></tr>
+      <tr><td><b>Cross-Validation (CV)</b></td><td>Datani K boʻlakka boʻlib, navbatma-navbat test qilish — ishonchli baholash.</td></tr>
+      <tr><td><b>Imbalanced Data</b></td><td>Sinflar teng emas (masalan 95% sogʻlom, 5% kasal). Accuracy aldamchi boʻladi.</td></tr>
+      <tr><td><b>Early Stopping</b></td><td>Validatsiya xatosi yaxshilanmasa oʻqitishni toʻxtatish — overfit va vaqt tejash.</td></tr>
+      <tr><td><b>Learning Rate (η)</b></td><td>Har qadamda modelning "oʻrganish tezligi". Kichik = sekin/aniq, katta = tez/beqaror.</td></tr>
+      <tr><td><b>Regularization (L1/L2)</b></td><td>Katta ogʻirliklarni jazolab, modelni soddalashtirish — overfit'ga qarshi.</td></tr>
+      <tr><td><b>Feature Engineering</b></td><td>Xom data'dan foydali belgilar yaratish (masalan koordinatalardan masofa).</td></tr>
+      <tr><td><b>Data Leakage</b></td><td>Test/kelajak maʻlumoti train'ga "sizib kirishi" — soxta yuqori natija beradi.</td></tr>
+      <tr><td><b>Bootstrap</b></td><td>Datadan qaytariladigan tasodifiy namuna olish (Bagging asosi).</td></tr>
+      <tr><td><b>OOB Error</b></td><td>Bootstrap'da tanlanmagan (~37%) data'da baholash — bepul validatsiya.</td></tr>
+      <tr><td><b>Residual</b></td><td>Haqiqiy qiymat − bashorat. Gradient Boosting shuni tuzatadi.</td></tr>
+      <tr><td><b>Confusion Matrix</b></td><td>TP/FP/FN/TN — klassifikatsiya natijalarining toʻliq surati.</td></tr>
+      <tr><td><b>Precision</b></td><td>Musbat bashoratlarning qancha ulushi toʻgʻri. FP'ga sezgir.</td></tr>
+      <tr><td><b>Recall</b></td><td>Haqiqiy musbatlarning qancha ulushi topildi. FN'ga sezgir.</td></tr>
+      <tr><td><b>F1-Score</b></td><td>Precision va Recall garmonik oʻrtachasi — balanssiz data uchun.</td></tr>
+      <tr><td><b>ROC-AUC</b></td><td>Barcha chegaralarda ajratish qobiliyati. 1=ideal, 0.5=tasodif.</td></tr>
+      <tr><td><b>R² (R-squared)</b></td><td>Model dispersiyaning necha % ini tushuntiradi. 1=ideal.</td></tr>
+      <tr><td><b>Gini / Entropy</b></td><td>Daraxt tugunidagi "iflloslik" oʻlchovi. Kichik = toza.</td></tr>
+      <tr><td><b>Kernel Trick</b></td><td>SVM'da datani yuqori oʻlchamga koʻtarib chiziqli ajratish usuli.</td></tr>
+      <tr><td><b>n_estimators</b></td><td>Ensemble'dagi daraxtlar soni.</td></tr>
+      <tr><td><b>num_leaves</b></td><td>LightGBM'da daraxt barglari soni — asosiy murakkablik nazorati.</td></tr>
+      <tr><td><b>subsample / colsample</b></td><td>Har daraxt uchun qatorlar / ustunlar ulushi — tasodifiylik va regularizatsiya.</td></tr>
+    </tbody></table></div>
+</section>
+
+<!-- ================= SECTION 11: MINDSET ================= -->
+<section id="s11">
+  <div class="sec-head"><span class="sec-num">11</span><h2>Critical / Product Mindset — 10 Oltin Qoida</h2></div>
+  <p class="sec-sub">Mustaqil, xatosiz ML model qurish va statistikani toʻgʻri analiz qilish uchun tekshiruv roʻyxati.</p>
+
+  <div class="check-item"><span class="check-num">1</span><div><b>Avval muammoni tushun, keyin model tanla.</b> "Nima bashorat qilyapman? Xato qanchaga tushadi?" Metrikani biznes maqsadiga bogʻla (FN qimmatmi yoki FP?).</div></div>
+  <div class="check-item"><span class="check-num">2</span><div><b>Data Leakage'dan qoʻrq.</b> Har belgi uchun soʻra: "Bu maʻlumot bashorat paytida mavjud boʻladimi?" Kelajak maʻlumoti (masalan dropoff vaqti) train'da boʻlmasin.</div></div>
+  <div class="check-item"><span class="check-num">3</span><div><b>Har doim baseline'dan boshla.</b> Oddiy model (Linear/Logistic yoki oʻrtacha) qur. Murakkab model shundan yaxshi boʻlmasa — murakkablik bekor.</div></div>
+  <div class="check-item"><span class="check-num">4</span><div><b>Accuracy'ga koʻr-koʻrona ishonma.</b> Balanssiz data'da Precision, Recall, F1, ROC-AUC ni koʻr. Confusion matrix'ni har doim chiz.</div></div>
+  <div class="check-item"><span class="check-num">5</span><div><b>Train/Val/Test ni qatʻiy ajrat.</b> Test'ga faqat oxirida bir marta qara. Preprocessing (scaler, encoder) faqat train'da fit qilinadi.</div></div>
+  <div class="check-item"><span class="check-num">6</span><div><b>EDA'ga vaqt sarfla.</b> Taqsimot, outlier, korrelyatsiya, boʻsh qiymatlarni koʻr. Modeldan oldin datani "his qil".</div></div>
+  <div class="check-item"><span class="check-num">7</span><div><b>Cross-Validation ishlat.</b> Bitta split baxtli/baxtsiz boʻlishi mumkin. CV ishonchli, barqaror baho beradi.</div></div>
+  <div class="check-item"><span class="check-num">8</span><div><b>Overfit belgilarini kuzat.</b> Train xatosi past, val xatosi baland boʻlsa — overfit. Regularizatsiya, early stopping, koʻproq data yordam beradi.</div></div>
+  <div class="check-item"><span class="check-num">9</span><div><b>Feature importance'ni tahlil qil.</b> Model nima oʻrganganini tushun. Kutilmagan belgi juda muhim boʻlsa — leakage shubhasi.</div></div>
+  <div class="check-item"><span class="check-num">10</span><div><b>Takrorlanuvchanlikni taʻminla.</b> random_state qoʻy, kodni versiyala, model + feature roʻyxatini birga saqla. "Menda ishlayapti" yetarli emas.</div></div>
+
+  <div class="box ok" style="margin-top:24px"><b>🎓 Yakuniy maslahat:</b> Kuchli ML muhandisi — eng murakkab modelni bilgani emas, <b>muammoni toʻgʻri qoʻya olgani, datani tushungan va xatolarini tanqidiy baholay olgan</b> odamdir. Model — vosita, fikrlash — ustunlik.</div>
+</section>
+
+</div>
+
+<button class="top-btn" id="topBtn" title="Tepaga">↑</button>
+<footer>
+  <p>ML Mukammal Konspekt — oʻz-oʻzicha toʻliq (offline) HTML. Vercel'ga tayyor · Responsive · Dark/Light.</p>
+</footer>
+
+<script>
+/* THEME TOGGLE */
+const themeBtn=document.getElementById('themeBtn'),html=document.documentElement;
+function setTheme(t){html.setAttribute('data-theme',t);themeBtn.textContent=t==='dark'?'☾':'☀';try{localStorage.setItem('ml_theme',t)}catch(e){}}
+themeBtn.onclick=()=>setTheme(html.getAttribute('data-theme')==='dark'?'light':'dark');
+try{const s=localStorage.getItem('ml_theme');if(s)setTheme(s);}catch(e){}
+/* MOBILE MENU */
+const menuBtn=document.getElementById('menuBtn'),navLinks=document.getElementById('navLinks');
+menuBtn.onclick=()=>navLinks.classList.toggle('open');
+navLinks.querySelectorAll('a').forEach(a=>a.onclick=()=>navLinks.classList.remove('open'));
+/* BACK TO TOP */
+const topBtn=document.getElementById('topBtn');
+window.addEventListener('scroll',()=>{topBtn.classList.toggle('show',window.scrollY>500)});
+topBtn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+/* COPY CODE */
+function copyCode(btn){const code=btn.closest('.code-block').querySelector('pre').innerText;
+  navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent='✓ Nusxa olindi';setTimeout(()=>btn.textContent=t,1500)})}
+/* QUIZ */
+let quizAnswered={},quizScore=0;
+function answerQuiz(el,qid,correct){
+  if(quizAnswered[qid])return;quizAnswered[qid]=true;
+  const opts=el.parentElement.querySelectorAll('.quiz-opt');
+  opts.forEach(o=>o.style.pointerEvents='none');
+  const fb=el.parentElement.querySelector('.quiz-fb');
+  if(correct){el.classList.add('correct');quizScore++;fb.style.color='var(--accent2)';fb.textContent='✓ Toʻgʻri!';}
+  else{el.classList.add('wrong');opts.forEach(o=>{if(o.dataset.c==='1')o.classList.add('correct')});fb.style.color='var(--danger)';fb.textContent='✗ Notoʻgʻri. Toʻgʻri javob yashil rangda.';}
+  fb.style.display='block';
+  const total=document.querySelectorAll('.quiz-q').length;
+  if(Object.keys(quizAnswered).length===total){
+    const sc=document.getElementById('quiz-score');
+    let g=quizScore>=9?'A+ — Ajoyib! 🏆':quizScore>=7?'B — Yaxshi! 👍':quizScore>=5?'C — Oʻrtacha, takrorlang 📚':'D — Qayta oʻqing 🔄';
+    sc.textContent=`Natija: ${quizScore}/${total} — ${g}`;sc.style.display='block';sc.scrollIntoView({behavior:'smooth'});
+  }
+}
+</script>
+</body>
+</html>
