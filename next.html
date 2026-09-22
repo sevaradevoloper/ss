@@ -31,7 +31,7 @@ body{
   position:fixed; top:0; left:0; right:0; z-index:1000;
   background:rgba(13,17,23,.85); backdrop-filter:blur(12px);
   border-bottom:1px solid var(--border); height:60px;
-  display:flex; align-items:center; padding:30px 20px; gap:16px;
+  display:flex; align-items:center; padding:0 20px; gap:16px;
 }
 [data-theme="light"] .navbar{background:rgba(255,255,255,.85)}
 .logo{font-weight:800;font-size:1.15rem;display:flex;align-items:center;gap:8px;white-space:nowrap}
@@ -67,6 +67,7 @@ section{scroll-margin-top:72px;margin-bottom:56px;background:var(--card);border:
 h3{margin:28px 0 12px;font-size:1.2rem;display:flex;align-items:center;gap:8px}
 h3 .ico{font-size:1.1rem}
 h4{margin:18px 0 8px;font-size:1.02rem;color:var(--accent)}
+h5{margin:14px 0 6px;font-size:.98rem;font-weight:700}
 p{margin-bottom:12px}
 ul,ol{margin:10px 0 14px 22px}
 li{margin-bottom:6px}
@@ -79,7 +80,19 @@ strong{color:var(--text)}
 .box.warn{border-left-color:var(--warn)}
 .box.ok{border-left-color:var(--accent2)}
 .box.info{border-left-color:var(--accent)}
+.box.analogy{border-left-color:var(--pink);background:rgba(247,120,186,.08)}
+.box.when{border-left-color:var(--accent2);background:rgba(63,185,80,.07)}
 .box b{display:block;margin-bottom:6px}
+/* WHEN-TO-USE LIST */
+.usecase{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.usecase>div{border-radius:12px;padding:14px 16px}
+.uc-yes{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.3)}
+.uc-no{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3)}
+.uc-yes h4{color:var(--accent2);margin-top:0}.uc-no h4{color:var(--danger);margin-top:0}
+.intuition{background:linear-gradient(135deg,rgba(88,166,255,.08),rgba(188,140,255,.08));
+  border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin:16px 0}
+.intuition b{color:var(--purple);display:block;margin-bottom:6px}
+@media(max-width:820px){.usecase{grid-template-columns:1fr}}
 /* FORMULA */
 .formula{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;
   padding:16px 18px;margin:14px 0;font-family:'Cambria Math',Georgia,serif;font-size:1.1rem;
@@ -201,7 +214,7 @@ footer{text-align:center;padding:40px 20px;color:var(--muted);border-top:1px sol
 
   <h3><span class="ico">🧠</span>A) Algoritm mohiyati & matematikasi</h3>
   <p><strong>Nima oʻzi bu algoritm?</strong> Linear Regression — kirish belgilar (features) bilan chiqish (target) oʻrtasida <b>toʻgʻri chiziqli bogʻlanish</b> bor deb faraz qiladi. U eng mos toʻgʻri chiziqni (yoki koʻp oʻlchamda tekislikni) topadi.</p>
-  <div class="box q"><b>Bu boʻlmasa nima boʻlardi?</b> Agar chiziqli model boʻlmasa, har bir yangi qiymat uchun "oʻxshash misollarni" qidirishimiz kerak boʻlardi. Linear Regression esa butun bogʻlanishni <b>bir nechta koeffitsientga</b> (w, b) siqib, tez va tushunarli bashorat beradi. Bu boʻlsa — har bir belgi natijaga qancha taʻsir qilishini (koeffitsient) aniq koʻramiz.</p>
+  <div class="box q"><b>Bu boʻlmasa nima boʻlardi?</b> Agar chiziqli model boʻlmasa, har bir yangi qiymat uchun "oʻxshash misollarni" qidirishimiz kerak boʻlardi. Linear Regression esa butun bogʻlanishni <b>bir nechta koeffitsientga</b> (w, b) siqib, tez va tushunarli bashorat beradi. Bu boʻlsa — har bir belgi natijaga qancha taʻsir qilishini (koeffitsient) aniq koʻramiz.</div>
 
   <h4>Asosiy formula</h4>
   <div class="formula">ŷ = w₁x₁ + w₂x₂ + ... + wₙxₙ + b
@@ -308,7 +321,19 @@ r2 = r2_score(y_test, y_pred)  <span class="cm"># R² — model dispersiyaning n
     <div class="pros"><h4>✅ Afzalliklari</h4><ul><li>Juda tez va oddiy</li><li>Toʻliq tushunarli (koeffitsientlar oʻqiladi)</li><li>Kam data'da ham ishlaydi</li></ul></div>
     <div class="cons"><h4>❌ Kamchiliklari</h4><ul><li>Faqat chiziqli bogʻlanishni topadi</li><li>Outlierlarga juda sezgir</li><li>Belgilar korrelyatsiyasidan aziyat chekadi</li></ul></div>
   </div>
-  <div class="box"><b>🎯 Qachon ishlatish?</b> Tez baseline model kerak boʻlganda, bogʻlanish taxminan chiziqli boʻlsa, yoki belgilar taʻsirini izohlash muhim boʻlganda (masalan tibbiyot, iqtisod).</div>
+  <div class="usecase">
+    <div class="uc-yes"><h4>✅ Ishlatish KERAK</h4><ul>
+      <li>Bog'lanish <b>taxminan chiziqli</b> bo'lganda (x oshsa, y bir tekis oshadi/kamayadi)</li>
+      <li>Tez, sodda <b>baseline</b> kerak bo'lganda</li>
+      <li>Belgilar ta'sirini <b>izohlash</b> muhim bo'lganda ("maydon 1 birlik oshsa, narx X ga oshadi")</li>
+      <li>Misol: uy narxi, maosh bashorati, savdo prognozi, tibbiyot/iqtisod tahlili</li>
+    </ul></div>
+    <div class="uc-no"><h4>❌ Ishlatmaslik kerak</h4><ul>
+      <li>Bog'lanish <b>murakkab/egri</b> bo'lsa (RF yoki Boosting yaxshiroq)</li>
+      <li>Data'da ko'p <b>outlier</b> bo'lsa (chiziqni buzadi)</li>
+      <li>Klassifikatsiya masalasi bo'lsa (u holda Logistic Regression)</li>
+    </ul></div>
+  </div>
 </section>
 
 <!-- ================= SECTION 2: LOGISTIC REGRESSION ================= -->
@@ -318,7 +343,7 @@ r2 = r2_score(y_test, y_pred)  <span class="cm"># R² — model dispersiyaning n
 
   <h3><span class="ico">🧠</span>A) Algoritm mohiyati & matematikasi</h3>
   <p><strong>Muammo:</strong> Linear Regression −∞ dan +∞ gacha son beradi. Ammo ehtimollik faqat <b>0 va 1 oraligʻida</b> boʻlishi kerak. Yechim — chiziqli natijani <b>Sigmoid</b> funksiyasidan oʻtkazish.</p>
-  <div class="box q"><b>Bu boʻlmasa nima boʻlardi?</b> Chiziqli model bilan klassifikatsiya qilsak, bashorat 1.5 yoki −0.3 boʻlib qolardi — bu ehtimollik sifatida maʻnosiz. Sigmoid har qanday sonni chiroyli tarzda [0,1] ga "siqadi".</p>
+  <div class="box q"><b>Bu boʻlmasa nima boʻlardi?</b> Chiziqli model bilan klassifikatsiya qilsak, bashorat 1.5 yoki −0.3 boʻlib qolardi — bu ehtimollik sifatida maʻnosiz. Sigmoid har qanday sonni chiroyli tarzda [0,1] ga "siqadi".</div>
 
   <h4>Sigmoid funksiyasi</h4>
   <div class="formula">σ(z) = 1 / (1 + e^−z),  bunda z = w·x + b
@@ -385,7 +410,19 @@ y_proba = model.predict_proba(X_test)[:, <span class="nu">1</span>]  <span class
     <div class="pros"><h4>✅ Afzalliklari</h4><ul><li>Ehtimollik beradi (nafaqat sinf)</li><li>Tez, izohlanadi</li><li>Kuchli baseline</li></ul></div>
     <div class="cons"><h4>❌ Kamchiliklari</h4><ul><li>Chiziqli chegara (murakkab shakllarni topolmaydi)</li><li>Feature engineering talab qiladi</li></ul></div>
   </div>
-  <div class="box"><b>🎯 Qachon ishlatish?</b> Ikkilik (yoki multiclass) klassifikatsiyada tez, izohlanadigan baseline kerak boʻlganda — masalan spam filtri, chorn (churn) bashorati, kasallik skrining.</div>
+  <div class="usecase">
+    <div class="uc-yes"><h4>✅ Ishlatish KERAK</h4><ul>
+      <li>Ikkilik <b>klassifikatsiya</b> (Ha/Yo'q, 0/1) masalasi bo'lganda</li>
+      <li><b>Ehtimollik</b> kerak bo'lganda (nafaqat sinf, balki "85% ishonch")</li>
+      <li>Tez, izohlanadigan <b>baseline</b> kerak bo'lganda</li>
+      <li>Misol: spam filtri, mijoz churn (ketish), kasallik skrining, reklamaga bosish</li>
+    </ul></div>
+    <div class="uc-no"><h4>❌ Ishlatmaslik kerak</h4><ul>
+      <li>Sinflar chegarasi <b>murakkab/egri</b> bo'lsa (RF, Boosting yoki SVM+kernel)</li>
+      <li>Regressiya (uzluksiz son) masalasi bo'lsa</li>
+      <li>Belgilar orasidagi murakkab o'zaro ta'sir muhim bo'lsa</li>
+    </ul></div>
+  </div>
 </section>
 
 <!-- ================= SECTION 3: METRICS ================= -->
@@ -403,6 +440,11 @@ y_proba = model.predict_proba(X_test)[:, <span class="nu">1</span>]  <span class
       <tr><td><b>R²</b></td><td>1 − SSᵣₑₛ/SSₜₒₜ</td><td>Tushuntirilgan dispersiya ulushi</td><td>1=ideal, 0=oʻrtacha bilan bir xil, &lt;0=yomon</td></tr>
     </tbody></table></div>
   <div class="box info"><b>MAE vs RMSE tanlovi:</b> Agar katta xatolar juda xavfli boʻlsa (masalan tibbiyot) → RMSE. Agar outlierlar shovqin boʻlib, ularga eʻtibor bermaslik kerak boʻlsa → MAE. Sizning taxi loyihangizda RMSLE ishlatilgan (log fazoda RMSE) — chunki safar davomiyligi eksponensial taqsimlangan.</div>
+  <div class="intuition"><b>💡 R² (R-squared) ni oddiy tushunish</b> R² shu savolga javob beradi: <i>"Mening modelim shunchaki hamma uchun o'rtacha qiymatni aytishdan qanchalik yaxshiroq?"</i><br>
+  • <b>R² = 1</b> → mukammal, har bir bashorat aniq to'g'ri.<br>
+  • <b>R² = 0</b> → modelingiz shunchaki "o'rtacha"ni aytish bilan bir xil (foydasiz).<br>
+  • <b>R² &lt; 0</b> → modelingiz o'rtachadan ham YOMON (jiddiy muammo bor!).<br>
+  Masalan R²=0.96 (sizning taxi modelingiz) — model target o'zgaruvchanligining 96% ini tushuntiradi. Bu juda kuchli natija.</div>
 
   <h3><span class="ico">🎯</span>A2) Classification metrikalari</h3>
   <h4>Confusion Matrix (Chalkashlik matritsasi)</h4>
@@ -438,6 +480,19 @@ y_proba = model.predict_proba(X_test)[:, <span class="nu">1</span>]  <span class
       <tr><td><b>ROC-AUC</b></td><td>egri ostidagi yuza</td><td>Barcha chegaralar boʻyicha ajratish qobiliyati (1=ideal, 0.5=tasodif)</td></tr>
     </tbody></table></div>
 
+  <div class="intuition"><b>💡 Precision vs Recall — hayotiy analogiya (eng ko'p chalkashadigan joy!)</b>
+  Tasavvur qiling, siz baliqchi bo'lib to'r tashladingiz.<br>
+  • <b>Precision</b> = to'ringizga tushgan narsalarning qanchasi <b>haqiqatan baliq</b> (poyabzal, chiqindi emas)? → "To'g'ri deganlarim qanchalik toza?"<br>
+  • <b>Recall</b> = ko'ldagi <b>barcha baliqlarning</b> qanchasini tuta oldingiz? → "Bor narsani qanchasini topdim?"<br>
+  Kichik, ehtiyotkor to'r → yuqori Precision, past Recall (kam tutasiz, lekin toza). Katta, ochko'z to'r → yuqori Recall, past Precision (hammasini tutasiz, lekin axlat ham). Ikkalasini bir vaqtda oshirish qiyin — bu <b>tradeoff</b>.</div>
+
+  <div class="box when"><b>🎯 Qaysi metrikani qachon tanlash kerak?</b><br>
+  • <b>Recall muhim</b> — xatoni O'TKAZIB YUBORISH xavfli bo'lsa: rak diagnozi (kasalni o'tkazib yubormaslik shart), firibgarlik aniqlash, xavfsizlik.<br>
+  • <b>Precision muhim</b> — YOLG'ON SIGNAL xarajatli bo'lsa: spam filtri (muhim xatni spamga tashlamaslik), sud/qamoq qarori.<br>
+  • <b>F1</b> — ikkalasi ham muhim va data balanssiz bo'lsa.<br>
+  • <b>ROC-AUC</b> — modellarni umumiy taqqoslashda, chegaradan mustaqil baho kerak bo'lsa.<br>
+  • <b>Accuracy</b> — faqat sinflar <b>taxminan teng</b> bo'lsa ishonchli.</div>
+
   <h3><span class="ico">🔢</span>B) Step-by-step misol</h3>
   <p>100 ta bemor. 10 tasi haqiqatan kasal. Model: 8 kasalni topdi (TP=8), 2 kasalni oʻtkazib yubordi (FN=2), 5 sogʻlomni kasal dedi (FP=5), 85 sogʻlomni toʻgʻri topdi (TN=85).</p>
   <ul>
@@ -471,9 +526,12 @@ rmse = mean_squared_error(y_true, y_pred) ** <span class="nu">0.5</span>  <span 
   <div class="sec-head"><span class="sec-num">4</span><h2>KNN & SVM</h2></div>
   <p class="sec-sub">Ikki klassik klassifikator: KNN — "qoʻshninga qarab hukm qil"; SVM — "eng keng yoʻlak bilan ajrat".</p>
 
-  <h3><span class="ico">🧠</span>A) KNN (K-Nearest Neighbors)</h3>
-  <p><strong>Mohiyati:</strong> Yangi nuqta uchun eng yaqin <b>K ta qoʻshni</b>ni topadi va ular orasida qaysi sinf koʻp boʻlsa — shuni tanlaydi (ovoz berish). Oʻqitish bosqichi <b>yoʻq</b> — shunchaki datani eslab qoladi ("lazy learning").</p>
-  <div class="box q"><b>Bu boʻlmasa nima boʻlardi?</b> KNN eng sodda "oʻxshashlik" gʻoyasini beradi: oʻxshash obyektlar oʻxshash sinfga tegishli. Hech qanday formula oʻrgatmaydi — toʻgʻridan-toʻgʻri masofaga tayanadi.</p>
+  <h3><span class="ico">🧠</span>A) KNN (K-Nearest Neighbors) — toʻliq</h3>
+  <p><strong>Nima o'zi bu algoritm?</strong> KNN dunyodagi eng sodda ML g'oyasiga tayanadi: <b>"o'xshash obyektlar o'xshash sinfga tegishli"</b>. Yangi obyekt kelganda, u datadan <b>eng yaqin K ta qo'shni</b>ni topadi va ular orasida qaysi sinf ko'pchilik bo'lsa — o'shani tanlaydi (ovoz berish). Regressiyada esa qo'shnilar qiymatining <b>o'rtachasini</b> oladi.</p>
+  <div class="box analogy"><b>🎯 Analogiya</b> Yangi shaharga ko'chib keldingiz va qaysi mahallaga o'xshashligingizni bilmoqchisiz. Eng oddiy yo'l — <b>eng yaqin 5 qo'shningizga qarash</b>: ular boy mahalladanmi yoki oddiy mahalladanmi? Ko'pchiligi qaysi bo'lsa — siz ham shunga o'xshaysiz. KNN aynan shu — "kim bilan yursang, shunga o'xshaysan".</div>
+  <p><strong>"Lazy learning" (dangasa o'rganish):</strong> KNN'ning eng qiziq tomoni — uning <b>o'qitish bosqichi umuman yo'q</b>! U shunchaki butun datani <b>eslab qoladi</b>. Butun ish faqat bashorat paytida bo'ladi: yangi nuqta kelganda, u <b>barcha</b> nuqtalargacha bo'lgan masofani hisoblaydi. Shuning uchun katta data'da bashorat sekin bo'ladi.</p>
+  <div class="box q"><b>Bu bo'lmasa nima bo'lardi?</b> KNN hech qanday "qoida" yoki "formula" o'rganmaydi — u faqat xotiraga va masofaga tayanadi. Bu eng sodda, eng tushunarli baseline. Ammo aynan shu sabab u katta data'da sekin va ko'p o'lchamda (ko'p belgida) yomonlashadi ("o'lchov la'nati" — curse of dimensionality).</div>
+  <div class="box q"><b>Bu boʻlmasa nima boʻlardi?</b> KNN eng sodda "oʻxshashlik" gʻoyasini beradi: oʻxshash obyektlar oʻxshash sinfga tegishli. Hech qanday formula oʻrgatmaydi — toʻgʻridan-toʻgʻri masofaga tayanadi.</div>
   <h4>Asosiy parametrlar</h4>
   <ul>
     <li><span class="tag">n_neighbors (K)</span> — nechta qoʻshni koʻriladi. Kichik K → shovqinga sezgir (overfit); katta K → chegara silliqlashadi (underfit).</li>
@@ -496,8 +554,11 @@ rmse = mean_squared_error(y_true, y_pred) ** <span class="nu">0.5</span>  <span 
   <p><strong>Eng yaqin 3 ta:</strong> Meva1(1.41), Meva2(2.00), Meva5(2.24) — barchasi <b>Olma</b>. Ovoz: Olma 3, Uzum 0 → Bashorat = <span class="hl">Olma</span> 🍎</p>
   <div class="box warn"><b>Scaling shart!</b> KNN masofaga tayangani uchun belgilarni <b>StandardScaler</b> bilan bir oʻlchovga keltirish MAJBURIY. Aks holda katta diapazonli belgi (masalan maosh) kichigini (yosh) bosib ketadi.</div>
 
-  <h3><span class="ico">🧠</span>A) SVM (Support Vector Machines)</h3>
-  <p><strong>Mohiyati:</strong> Ikki sinfni ajratadigan <b>eng keng "yoʻlak" (margin)</b>ga ega gipertekislikni topadi. Yoʻlak chetidagi nuqtalar — <b>support vectors</b> (tayanch vektorlar) deb ataladi; faqat ular chegarani belgilaydi.</p>
+  <h3><span class="ico">🧠</span>A) SVM (Support Vector Machines) — toʻliq</h3>
+  <p><strong>Nima o'zi bu algoritm?</strong> SVM ikki sinfni ajratadigan chiziq (yoki ko'p o'lchamda tekislik) chizadi. Lekin cheksiz ko'p ajratuvchi chiziq bor — SVM ularning ichidan <b>eng "adolatli"</b>sini tanlaydi: ikki sinf orasida <b>eng keng bo'sh yo'lak (margin)</b> qoldiradigan chiziqni.</p>
+  <div class="box analogy"><b>🎯 Analogiya</b> Ikki qishloq o'rtasida chegara chizyapsiz. Chegarani bir qishloqqa juda yaqin chizsangiz — nizo chiqadi (yangi uy paydo bo'lsa noto'g'ri tarafda qoladi). Eng oqilona yo'l — chegarani <b>ikkala qishloqdan ham imkon qadar uzoq</b>, o'rtadan o'tkazish. Shunda yangi uylar ham to'g'ri tarafda qoladi. SVM aynan shu "eng keng xavfsizlik yo'lagi"ni topadi — shuning uchun yangi data'da yaxshi umumlashadı.</div>
+  <p><strong>Support Vectors (tayanch vektorlar):</strong> Yo'lak chetidagi, chegaraga eng yaqin turgan nuqtalar. Eng qizig'i — <b>faqat shu bir nechta nuqta</b> chegarani belgilaydi; qolgan minglab nuqtalarni o'chirsangiz ham, chegara o'zgarmaydi. "Support" (tayanch) nomi shundan — ular butun chegarani "tutib turadi".</p>
+  <div class="box q"><b>Bu bo'lmasa nima bo'lardi?</b> Oddiy Logistic Regression istalgan ajratuvchi chiziqni chizadi — ba'zan sinflarga juda yaqin bo'lib, yangi data'da adashadi. SVM "eng keng margin" tamoyili bilan bu muammoni hal qiladi. Ustiga, <b>Kernel Trick</b> yordamida to'g'ri chiziq bilan ajralmaydigan murakkab data'ni ham ajrata oladi — buni pastda ko'ramiz.</div>
   <h4>Asosiy tushunchalar</h4>
   <ul>
     <li><strong>Hyperplane (gipertekislik):</strong> sinflarni ajratuvchi chegara (2D da chiziq, 3D da tekislik).</li>
@@ -559,8 +620,27 @@ svm = make_pipeline(
 )
 svm.fit(X_train, y_train)  <span class="cm"># Support vektorlarni va optimal marginni topadi</span></code></pre>
   </div>
+  <div class="intuition"><b>💡 Kernel Trick'ni sodda tushuntirish</b> Tasavvur qiling: qog'ozda markazda qizil, atrofida ko'k nuqtalar bor — to'g'ri chiziq bilan ularni <b>hech qachon</b> ajratolmaysiz. Endi qog'ozning markazini pastdan barmoq bilan <b>ko'tarib</b>, uni 3D qilib qo'ying — qizillar tepaga chiqadi. Endi ularni tekis "pichoq" (tekislik) bilan bemalol ajratasiz! Kernel Trick aynan shu: data'ni yuqori o'lchamga ko'tarib, u yerda chiziq bilan ajratadi — lekin buni <b>haqiqatda hisoblamasdan</b>, matematik hiyla (trick) bilan qiladi. RBF kernel eng ko'p ishlatiladi.</div>
+
+  <h4>🎯 KNN va SVM — qayerda va qachon?</h4>
+  <div class="usecase">
+    <div class="uc-yes"><h4>✅ KNN qachon</h4><ul>
+      <li>Kichik/o'rta data (bir necha ming qator)</li>
+      <li>Kam belgi (o'lcham) bo'lganda</li>
+      <li>Tez, tushunarli baseline kerak bo'lsa</li>
+      <li>Misol: tavsiya tizimi (o'xshash foydalanuvchilar), oddiy klassifikatsiya</li>
+    </ul></div>
+    <div class="uc-yes"><h4>✅ SVM qachon</h4><ul>
+      <li>Kam/o'rta data, lekin <b>ko'p belgi</b> (masalan matn: TF-IDF)</li>
+      <li>Sinflar orasida aniq chegara bo'lganda</li>
+      <li>Murakkab (egri) chegara kerak bo'lsa — RBF kernel</li>
+      <li>Misol: matn klassifikatsiyasi, tibbiy tasnif, yuzni tanish (klassik)</li>
+    </ul></div>
+  </div>
+  <div class="box warn"><b>⚠ Ikkalasining umumiy kamchiligi:</b> katta data'da (yuz minglab/millionlab qator) ikkalasi ham <b>sekin</b>. Bunday holatda — Random Forest yoki LightGBM/XGBoost'ga o'ting. KNN va SVM — kichikroq masalalar uchun.</div>
+
   <div class="pros-cons">
-    <div class="pros"><h4>✅ Afzalliklari</h4><ul><li>KNN: oʻqitish yoʻq, tushunarli</li><li>SVM: yuqori oʻlchamda kuchli, aniq chegara</li></ul></div>
+    <div class="pros"><h4>✅ Afzalliklari</h4><ul><li>KNN: o'qitish yo'q, tushunarli</li><li>SVM: yuqori o'lchamda kuchli, aniq chegara</li></ul></div>
     <div class="cons"><h4>❌ Kamchiliklari</h4><ul><li>KNN: katta data'da juda sekin bashorat</li><li>SVM: katta data'da sekin, sozlash qiyin</li></ul></div>
   </div>
 </section>
@@ -572,19 +652,35 @@ svm.fit(X_train, y_train)  <span class="cm"># Support vektorlarni va optimal mar
 
   <h3><span class="ico">🧠</span>A) Algoritm mohiyati & matematikasi</h3>
   <p><strong>Mohiyati:</strong> Daraxt datani <b>savollar bilan boʻlaklarga</b> ajratadi. Har bir tugun (node) bitta belgi boʻyicha shart qoʻyadi (masalan "yosh &gt; 30?"), toki har bir boʻlak imkon qadar "toza" (bir sinfli) boʻlguncha.</p>
-  <div class="box q"><b>Bu boʻlmasa nima boʻlardi?</b> Chiziqli modellar faqat toʻgʻri chegara chizadi. Daraxt esa <b>notekis, murakkab</b> chegaralar chizadi va belgilar orasidagi oʻzaro taʻsirni (interaction) avtomatik topadi. Scaling ham kerak emas!</p>
+  <div class="box q"><b>Bu boʻlmasa nima boʻlardi?</b> Chiziqli modellar faqat toʻgʻri chegara chizadi. Daraxt esa <b>notekis, murakkab</b> chegaralar chizadi va belgilar orasidagi oʻzaro taʻsirni (interaction) avtomatik topadi. Scaling ham kerak emas!</div>
 
-  <h4>Boʻlinish mezoni: Gini va Entropy</h4>
-  <p>Qaysi savolni berish kerak? Har bir mumkin boʻlgan boʻlinishning <b>"tozalik"</b>ini oʻlchaymiz va eng koʻp tozalik beruvchisini tanlaymiz.</p>
-  <div class="grid2">
-    <div class="formula">Gini = 1 − Σ pᵢ²<span class="note">pᵢ = i-sinf ulushi. 0 = mutlaqo toza, 0.5 = maksimal aralash (2 sinf). Tez hisoblanadi</span></div>
-    <div class="formula">Entropy = −Σ pᵢ·log₂(pᵢ)<span class="note">0 = toza, 1 = maksimal noaniqlik. Logarifmli — sekinroq</span></div>
+  <h4>Boʻlinish mezoni: Gini va Entropy — nima oʻzi bu?</h4>
+  <div class="intuition"><b>💡 Avval intuisiya (juda muhim!)</b>
+    Tasavvur qiling: qutida sharlar bor. Agar qutidagi <b>hamma shar bir xil rangda</b> boʻlsa — bu "toza" (pure) qutı. Agar <b>yarmi qizil, yarmi koʻk</b> boʻlsa — bu "iflos/aralash" (impure) qutı. Daraxt har bir savol bilan (masalan "yosh &lt; 30?") datani ikkita quutiga boʻladi va <b>iloji boricha toza</b> qutılar hosil qilishga harakat qiladi. Gini va Entropy — shu "aralashlik darajasi"ni oʻlchaydigan ikkita usul, xolos.
   </div>
+  <p>Yaʻni daraxtga har boʻlinishda "bu savol datani qanchalik toza guruhlarga ajratdi?" degan raqamli baho kerak. Aynan shu bahoni <b>Gini</b> yoki <b>Entropy</b> beradi. Ikkalasi ham <b>0 dan boshlanadi</b> (0 = mutlaqo toza, bir sinf) va aralashuv oshgani sari kattalashadi.</p>
 
-  <h4>Information Gain (Axborot yutugʻi)</h4>
-  <div class="formula">IG = Impurity(ota) − Σ (nᵢ/n)·Impurity(bolaᵢ)
-    <span class="note">Boʻlinishdan oldingi va keyingi "iflloslik" farqi. Eng katta IG beruvchi savol tanlanadi</span>
+  <h5 style="color:var(--accent);margin:16px 0 6px">1) Gini Impurity — "tasodifan xato qilish ehtimoli"</h5>
+  <p>Gini shu savolga javob beradi: <i>"Agar qutıdan tasodifan bitta shar olib, uni tasodifiy taxmin bilan belgilasam — xato qilish ehtimoli qancha?"</i> Toza qutıda hech qachon xato qilmaysiz (Gini=0). Maksimal aralash qutıda esa xato ehtimoli eng katta.</p>
+  <div class="formula">Gini = 1 − Σ pᵢ² = 1 − (p₁² + p₂² + ...)
+    <span class="note">pᵢ = i-sinfning qutıdagi ulushi (foizi). Masalan 3 qizil, 1 koʻk → p_qizil=0.75, p_koʻk=0.25</span>
   </div>
+  <p><strong>Sonli misol:</strong> qutıda 3 qizil, 1 koʻk shar bor. p_qizil=3/4=0.75, p_koʻk=1/4=0.25.<br>
+  Gini = 1 − (0.75² + 0.25²) = 1 − (0.5625 + 0.0625) = 1 − 0.625 = <span class="hl">0.375</span>.<br>
+  Agar 4 shar ham qizil boʻlsa: Gini = 1 − (1² + 0²) = <span class="hl">0</span> (toza!). Agar 2 qizil 2 koʻk: Gini = 1 − (0.5²+0.5²) = <span class="hl2">0.5</span> (maksimal aralash).</p>
+
+  <h5 style="color:var(--accent);margin:16px 0 6px">2) Entropy — "noaniqlik / betartiblik darajasi"</h5>
+  <p>Entropy fizikadan olingan: <i>"bu qutıdagi holat qanchalik betartib/noaniq?"</i> Toza qutıda noaniqlik yoʻq (Entropy=0 — keyingi sharni aniq bilasiz). Yarmi-yarmi qutıda noaniqlik maksimal (Entropy=1 — tanga tashlash kabi).</p>
+  <div class="formula">Entropy = − Σ pᵢ · log₂(pᵢ)
+    <span class="note">log₂ = 2 asosli logarifm. Manfiy belgi natijani musbat qiladi (chunki log(kasr) manfiy)</span>
+  </div>
+  <p><strong>Sonli misol (3 qizil, 1 koʻk):</strong> Entropy = −[0.75·log₂(0.75) + 0.25·log₂(0.25)] = −[0.75·(−0.415) + 0.25·(−2)] = −[−0.311 − 0.5] = <span class="hl">0.811</span>. 2 qizil 2 koʻk boʻlsa Entropy = <span class="hl2">1.0</span> (maksimal).</p>
+
+  <div class="box info"><b>Gini yoki Entropy — qaysi biri?</b> Amalda deyarli bir xil natija beradi. <b>Gini tezroq</b> (logarifm yoʻq), shuning uchun sklearn'da <b>standart</b>. Entropy nazariy jihatdan biroz "toza", lekin sekinroq. Junior sifatida: <b>Gini'dan foydalaning</b>, farqi deyarli sezilmaydi.</div>
+
+  <h4>Information Gain (Axborot yutugʻi) — "bu savol qancha foyda berdi?"</h4>
+  <p>Endi daraxt qanday qaror qiladi? U <b>har bir mumkin boʻlgan savolni</b> sinab koʻradi va boʻlinishdan <b>oldingi</b> aralashlik bilan <b>keyingi</b> aralashlik farqini hisoblaydi. Bu farq — Information Gain. Qaysi savol eng katta IG bersa (eng koʻp tozalik qoʻshsa) — oʻsha savol tanlanadi.</p>
+  <div class="intuition"><b>💡 Hayotiy analogiya</b> "20 savol" oʻyinini oʻylang. Yaxshi oʻyinchi eng koʻp <b>noaniqlikni kamaytiradigan</b> savolni beradi ("Bu jonzotmi?" — ha/yoʻq javob dunyoni yarmiga boʻladi). Yomon savol ("Bu zebrami?") kam foyda beradi. Daraxt ham xuddi shunday — har qadamda eng koʻp "noaniqlik kamaytiradigan" savolni tanlaydi.</div>
 
   <h4>Asosiy giperparametrlar</h4>
   <ul>
@@ -653,6 +749,19 @@ plt.show()</code></pre>
     <div class="pros"><h4>✅ Afzalliklari</h4><ul><li>Toʻliq izohlanadi (oq quti)</li><li>Scaling kerak emas</li><li>Notekis bogʻlanishlarni topadi</li></ul></div>
     <div class="cons"><h4>❌ Kamchiliklari</h4><ul><li>Osongina overfit boʻladi</li><li>Beqaror (data ozgina oʻzgarsa — boshqa daraxt)</li></ul></div>
   </div>
+  <div class="usecase">
+    <div class="uc-yes"><h4>✅ Ishlatish KERAK</h4><ul>
+      <li>Model <b>to'liq izohlanishi</b> shart bo'lganda ("nega bu qaror?" — daraxtni chizib ko'rsatasiz)</li>
+      <li>Belgilar orasidagi murakkab, notekis bog'lanishni topish kerak bo'lsa</li>
+      <li>Scaling/normalizatsiya qilishni istamasangiz (kerak emas)</li>
+      <li>Ensemble (RF, XGBoost) uchun asos "g'isht" sifatida</li>
+    </ul></div>
+    <div class="uc-no"><h4>❌ Ishlatmaslik kerak</h4><ul>
+      <li>Yakuniy, aniq model sifatida yolg'iz o'zi (beqaror, overfit) — RF/Boosting yaxshiroq</li>
+      <li>Silliq, chiziqli bog'lanish bo'lsa (Linear/Logistic yetarli)</li>
+      <li>Yuqori aniqlik kerak bo'lsa (bitta daraxt kuchsiz)</li>
+    </ul></div>
+  </div>
   <div class="box info"><b>Muhim:</b> Bitta daraxt kuchsiz va beqaror. Aynan shu <b>beqarorlikni</b> Random Forest (koʻp daraxt oʻrtacha) va Boosting (daraxtlar ketma-ket xatoni tuzatadi) hal qiladi — keyingi boʻlimlarga oʻtamiz.</div>
 </section>
 
@@ -702,13 +811,19 @@ plt.show()</code></pre>
   <div class="sec-head"><span class="sec-num">7</span><h2>Random Forest</h2></div>
   <p class="sec-sub">Koʻp qaror daraxtidan iborat "oʻrmon". Bagging + tasodifiy belgilar = barqaror, kuchli, kam overfit model.</p>
 
-  <h3><span class="ico">🧠</span>A) Algoritm mohiyati</h3>
-  <p><strong>Ikki xil tasodifiylik</strong> Random Forest'ning siri:</p>
+  <h3><span class="ico">🧠</span>A) Algoritm mohiyati — toʻliq va sodda</h3>
+  <p><strong>Muammo nimada edi?</strong> Bitta qaror daraxti juda <b>beqaror</b>: data'ni ozgina o'zgartirsangiz — butunlay boshqa daraxt chiqadi. Bitta daraxt osongina <b>overfit</b> bo'ladi (train'ni yodlab, yangi data'da adashadi). Ya'ni bitta daraxt — aqlli, lekin "injiq" va ishonchsiz mutaxassis.</p>
+  <div class="box analogy"><b>🎯 Asosiy analogiya (buni yodlab qoling!)</b> Bitta shifokorga tashxis qo'ydirsangiz — u xato qilishi mumkin. Lekin <b>100 ta mustaqil shifokordan</b> so'rab, ko'pchilik nima desa — o'shani qabul qilsangiz, xato ehtimoli keskin kamayadi. Har bir shifokor ayrim xatolar qiladi, lekin ular <b>bir xil xato qilmaydi</b> — shuning uchun xatolar bir-birini "yeydi". Random Forest aynan shu: 100–500 ta daraxtning umumiy fikri (ovozi/o'rtachasi). Bitta daraxt adashsa ham, o'rmon to'g'ri qaror qiladi.</div>
+  <p><strong>Nima o'zi bu algoritm?</strong> Random Forest — ko'p sonli qaror daraxtini birga o'qitib, ularning bashoratlarini <b>birlashtiradigan</b> ensemble modeli. "Random" (tasodifiy) so'zi ikkita joyda tasodifiylik borligini bildiradi — pastda ko'ramiz. Aynan shu tasodifiylik daraxtlarni <b>bir-biridan farqli</b> qiladi, farqlilik esa xatolarni bekor qiladi.</p>
+  <div class="box q"><b>Bu bo'lmasa nima bo'lardi? Bu bo'lsa nima o'zgaradi?</b><br>• <b>Bo'lmasa:</b> bitta daraxt bilan qolamiz — beqaror, overfit, ishonchsiz.<br>• <b>Bo'lsa:</b> variance (beqarorlik) keskin kamayadi, model barqaror va ishonchli bo'ladi, deyarli sozlashsiz ham yaxshi ishlaydi. Buning evaziga: model kattaroq (xotira) va bashorat biroz sekinroq bo'ladi.</div>
+
+  <h4>Random Forest'ning ikki siri (tasodifiylik)</h4>
+  <p><strong>Ikki xil tasodifiylik</strong> Random Forest'ni kuchli qiladi:</p>
   <ul>
-    <li><strong>1. Bootstrap Aggregation (Bagging):</strong> Har daraxt datadan <b>tasodifiy, qaytariladigan namuna</b> (bootstrap sample) oladi. Har daraxt biroz boshqa data koʻradi.</li>
-    <li><strong>2. Feature Randomness:</strong> Har boʻlinishda barcha belgilar emas, <b>tasodifiy qism</b> (masalan √p ta) tanlanadi. Bu daraxtlarni bir-biridan farqlantiradi (dekorrelyatsiya).</li>
+    <li><strong>1. Bootstrap Aggregation (Bagging):</strong> Har bir daraxt asl datadan <b>tasodifiy, qaytariladigan namuna</b> (bootstrap sample) oladi. "Qaytariladigan" degani — bir qator bir necha marta tanlanishi, boshqasi esa umuman tanlanmasligi mumkin. Natijada har daraxt <b>biroz boshqacha</b> data ko'radi → har biri biroz boshqacha o'rganadi. <br><span style="color:var(--muted)">Misol: 1000 qatorli datadan har daraxt uchun 1000 ta qator tasodifan (takror bilan) olinadi — taxminan 63% i noyob, qolgani takror.</span></li>
+    <li><strong>2. Feature Randomness (belgilar tasodifiyligi):</strong> Har bir bo'linishda daraxt <b>barcha belgilarni emas</b>, faqat <b>tasodifiy kichik qismini</b> (masalan jami belgilardan √p tasini) ko'radi va shulardan eng yaxshisini tanlaydi. Bu daraxtlarni <b>bir-biridan yanada farqli</b> qiladi.</li>
   </ul>
-  <div class="box q"><b>Nega tasodifiy belgi?</b> Agar bitta belgi juda kuchli boʻlsa, hamma daraxt uni tanlab bir xil boʻlib qolardi — oʻrtachalash foydasi yoʻqoladi. Tasodifiylik daraxtlarni <b>xilma-xil</b> qiladi, xilma-xillik esa xatolarni bekor qiladi.</p>
+  <div class="box q"><b>Nega tasodifiy belgi?</b> Agar bitta belgi juda kuchli boʻlsa, hamma daraxt uni tanlab bir xil boʻlib qolardi — oʻrtachalash foydasi yoʻqoladi. Tasodifiylik daraxtlarni <b>xilma-xil</b> qiladi, xilma-xillik esa xatolarni bekor qiladi.</div>
 
   <h4>OOB Error (Out-of-Bag)</h4>
   <p>Bootstrap'da har daraxt uchun ~37% data <b>tanlanmay qoladi</b> (out-of-bag). Bu "koʻrilmagan" data'da daraxtni sinash mumkin — <b>bepul validatsiya</b>, alohida test set kerak emas!</p>
@@ -776,7 +891,23 @@ rf.fit(X_train, y_train)  <span class="cm"># Har daraxt oʻz bootstrap namunasid
     <div class="pros"><h4>✅ Afzalliklari</h4><ul><li>Kam overfit, barqaror</li><li>Sozlash kam kerak, "ishlaydi"</li><li>Feature importance beradi</li><li>OOB bepul validatsiya</li></ul></div>
     <div class="cons"><h4>❌ Kamchiliklari</h4><ul><li>Boosting'dan biroz kam aniq</li><li>Katta model (xotira)</li><li>Ekstrapolyatsiya qilolmaydi</li></ul></div>
   </div>
-  <div class="box"><b>🎯 Qachon ishlatish?</b> Kuchli, ishonchli baseline sifatida deyarli har doim. Tabular (jadval) data'da ajoyib. Sozlashga vaqt yoʻq boʻlganda ideal.</div>
+  <h4>🎯 Qayerda va qachon ishlatiladi? (aniq misollar bilan)</h4>
+  <div class="usecase">
+    <div class="uc-yes"><h4>✅ Ishlatish KERAK</h4><ul>
+      <li><b>Tabular (jadval) data</b> — Excel/CSV ko'rinishidagi ustunli data (mijozlar, tranzaksiyalar)</li>
+      <li>Kuchli, <b>ishonchli baseline</b> tez kerak bo'lganda (deyarli sozlashsiz ishlaydi)</li>
+      <li>Overfit'dan qo'rqqanda — barqaror va "xavfsiz" model</li>
+      <li>Qaysi belgi muhimligini bilmoqchi bo'lsangiz (feature importance)</li>
+      <li>Misol: kredit skoring, mijoz churn (ketish) bashorati, kasallik xavfi, uy narxi</li>
+    </ul></div>
+    <div class="uc-no"><h4>❌ Ishlatmaslik kerak</h4><ul>
+      <li><b>Rasm, matn, ovoz</b> data — bunda Deep Learning (neyron tarmoq) yaxshiroq</li>
+      <li>Juda <b>tez bashorat</b> (real-time, millisekund) kerak bo'lsa — katta o'rmon sekin</li>
+      <li>Model <b>to'liq izohlanishi</b> shart bo'lsa (bitta daraxt yoki Linear yaxshiroq)</li>
+      <li>Ekstrapolyatsiya kerak bo'lsa — RF train diapazonidan tashqarini bashorat qilolmaydi</li>
+    </ul></div>
+  </div>
+  <div class="box when"><b>💡 Junior uchun amaliy maslahat:</b> Yangi tabular masala olsangiz — <b>birinchi Random Forest sinang</b>. U kam sozlash bilan yaxshi natija beradi va "bu masalada qanchaga erishish mumkin" degan mo'ljalni beradi. Keyin XGBoost/LightGBM bilan uni yaxshilashga urinasiz.</div>
 </section>
 
 <!-- ================= SECTION 8: BOOSTING FAMILY ================= -->
@@ -978,8 +1109,13 @@ cat.fit(X_train, y_train, eval_set=(X_val, y_val))  <span class="cm"># Ordered b
       <tr><td>LightGBM</td><td class="hl">Eng tez, katta data</td><td>Leaf-wise + GOSS/EFB</td><td>Katta data, koʻp belgi</td></tr>
       <tr><td>CatBoost</td><td class="hl2">Kategorik belgilar</td><td>Symmetric + ordered</td><td>Koʻp kategorik ustun</td></tr>
     </tbody></table></div>
+  <div class="box when"><b>🎯 Boosting'ni qachon ishlatish (Random Forest'ga nisbatan)?</b><br>
+  • <b>Eng yuqori aniqlik</b> kerak bo'lganda (Kaggle musobaqalari, ishlab chiqarish modellari) — to'g'ri sozlangan Boosting odatda RF'dan aniqroq.<br>
+  • <b>Katta tabular data</b> — LightGBM eng tez, millionlab qatorni bemalol ko'taradi.<br>
+  • <b>Ko'p kategorik belgi</b> (shahar, brend) bo'lsa — CatBoost.<br>
+  • Sozlashga <b>vaqtingiz bo'lsa</b> — Boosting ko'proq sozlash talab qiladi (learning_rate, num_leaves, regularizatsiya), lekin mukofoti — yuqoriroq aniqlik.<br>
+  <b>Junior maslahati:</b> RF bilan boshlang (barqaror, sodda), keyin LightGBM/XGBoost bilan aniqlikni oshiring. Rasm/matn/ovoz uchun esa Boosting emas — Deep Learning kerak.</div>
 
-<!-- BOOST_MORE -->
 </section>
 
 <!-- ================= SECTION 9: END-TO-END PIPELINE ================= -->
@@ -989,7 +1125,8 @@ cat.fit(X_train, y_train, eval_set=(X_val, y_val))  <span class="cm"># Ordered b
 
   <div class="box info"><b>Umumiy oqim:</b> Yuklab olish → EDA (tekshirish) → outlier/tozalash → target transform (log) → feature engineering (masofa, vaqt) → train/val/test split → LightGBM + early stopping → metrikalar (expm1 dan keyin) → modelni saqlash.</div>
 
-  <h3><span class="ico">1️⃣</span>Data yuklash va EDA</h3>
+  <h3><span class="ico">1️⃣</span>Data yuklash va EDA (Exploratory Data Analysis)</h3>
+  <p><b>Nima qilyapmiz va nega?</b> EDA — datani modelga bermасdan oldin uni "tanish" bosqichi. Detektiv kabi datani tekshiramiz: nechta qator/ustun bor? Bo'sh (null) qiymatlar bormi? G'alati sonlar (masalan 40 kunlik taxi safari) bormi? Bu bosqichni tashlab ketsangiz — model axlat data'da o'qib, axlat natija beradi ("garbage in, garbage out"). <b>Har bir muvaffaqiyatli ML loyihasi EDA'dan boshlanadi.</b></p>
   <div class="code-block">
     <div class="code-head"><span>pipeline_1_eda.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
 <pre><code><span class="kw">import</span> pandas <span class="kw">as</span> pd, numpy <span class="kw">as</span> np
@@ -1002,7 +1139,7 @@ df = pd.read_csv(<span class="st">"taxi_data/train/train.csv"</span>)  <span cla
   </div>
 
   <h3><span class="ico">2️⃣</span>Target transform (log)</h3>
-  <p>Safar davomiyligi kuchli oʻngga qiyshaygan (skewed). <b>log1p</b> uni normal taqsimotga yaqinlashtiradi → model yaxshiroq oʻrganadi.</p>
+  <p><b>Nima qilyapmiz va nega?</b> Safar davomiyligining ko'p qismi qisqa (5–20 daqiqa), lekin ozgina juda uzun safar bor — shuning uchun taqsimot "o'ngga cho'zilgan" (right-skewed). Bunday data'da model uzun safarlarga haddan tashqari e'tibor berib, oddiylarida adashadi. <b>log1p</b> katta qiymatlarni "siqib", taqsimotni normal (qo'ng'iroqsimon) shaklga yaqinlashtiradi → model barcha safar turlarini adolatli o'rganadi. Baholashda esa <b>expm1</b> bilan asl sekundga qaytaramiz.</p>
   <div class="code-block">
     <div class="code-head"><span>pipeline_2_target.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
 <pre><code>df[<span class="st">'log_time_duration'</span>] = np.log1p(df[<span class="st">'trip_duration'</span>])
@@ -1011,6 +1148,7 @@ df = pd.read_csv(<span class="st">"taxi_data/train/train.csv"</span>)  <span cla
   </div>
 
   <h3><span class="ico">3️⃣</span>Outlier tozalash va tekshirish</h3>
+  <p><b>Nima qilyapmiz va nega?</b> Outlier — datadagi "g'alati", real bo'lmasligi mumkin bo'lgan qiymatlar. Masalan koordinatasi NYC'dan tashqarida (GPS xatosi) yoki 40 kunlik safar (yozuv xatosi). Bunday qiymatlar modelni chalg'itadi. Biz NYC geografik chegarasini belgilab, undan tashqaridagi va real bo'lmagan davomiylikdagi qatorlarni olib tashlaymiz. <b>Muhim:</b> hamma outlierni ham o'chirmang — ba'zilari haqiqiy va muhim bo'lishi mumkin. Faqat aniq xato bo'lganlarni tozalang.</p>
   <div class="code-block">
     <div class="code-head"><span>pipeline_3_clean.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
 <pre><code><span class="cm"># NYC chegaralari — shundan tashqaridagi koordinatalar xato/outlier</span>
@@ -1030,6 +1168,7 @@ df = df[(df[<span class="st">'trip_duration'</span>] &gt; <span class="nu">10</s
   </div>
 
   <h3><span class="ico">4️⃣</span>Feature Engineering (masofa + vaqt)</h3>
+  <p><b>Nima qilyapmiz va nega?</b> Bu ML'dagi <b>eng muhim va eng ijodiy</b> bosqich. Xom data'da model uchun tushunarli "signal" kam. Masalan 4 ta koordinata sonining o'zi modelga hech narsa aytmaydi — lekin ulardan <b>masofani (km)</b> hisoblab bersak, bu safar davomiyligi bilan kuchli bog'liq foydali belgi bo'ladi! Xuddi shunday, xom vaqtdan "tirbandlik soati", "dam olish kuni" kabi belgilar yasaymiz. <b>Qoida:</b> yaxshi feature engineering ko'pincha modelni tanlashdan muhimroq — aqlli belgilar oddiy modelni ham kuchli qiladi.</p>
   <div class="code-block">
     <div class="code-head"><span>pipeline_4_features.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
 <pre><code><span class="kw">def</span> <span class="fn">haversine</span>(lat1, lon1, lat2, lon2):
@@ -1054,6 +1193,7 @@ df[<span class="st">'is_rush_hour'</span>] = (df.pickup_hour.between(<span class
   <div class="box warn"><b>⚠ Leakage ogohlantirishi:</b> <span class="tag">dropoff_datetime</span>, <span class="tag">datetime_duration</span> yoki <span class="tag">speed_kmh</span> (davomiylikdan hisoblangan) belgilarini X ga <b>qoʻshmang</b> — ular targetni "ochib beradi" (leakage). Modelniz test'da 0.99 R² berib, realda ishlamaydi!</div>
 
   <h3><span class="ico">5️⃣</span>Split → Train (LightGBM + early stopping)</h3>
+  <p><b>Nima qilyapmiz va nega?</b> Datani uch qismga bo'lamiz: <b>Train</b> (70%) — model shu yerda o'rganadi; <b>Validation</b> (15%) — o'qish davomida modelni sozlash va "qachon to'xtash" kerakligini bilish uchun; <b>Test</b> (15%) — model umuman ko'rmagan, faqat OXIRIDA bir marta baholash uchun. Nega uch qism? Agar test'ni sozlashda ishlatsak, o'zimizni aldab qo'yamiz — test "begona" bo'lib qolishi shart. <b>early_stopping</b> esa validation xatosi yaxshilanmasa o'qishni to'xtatadi — overfit'ning va vaqt isrofining oldini oladi.</p>
   <div class="code-block">
     <div class="code-head"><span>pipeline_5_train.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
 <pre><code><span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
@@ -1079,6 +1219,7 @@ model.fit(X_tr, y_tr, eval_set=[(X_val, y_val)],
   </div>
 
   <h3><span class="ico">6️⃣</span>Evaluate (asl oʻlchovda)</h3>
+  <p><b>Nima qilyapmiz va nega?</b> Model log fazoda bashorat qiladi, lekin bizga real <b>sekundlar</b> kerak — shuning uchun <b>expm1</b> bilan orqaga qaytaramiz (bu 2-qadamdagi log1p'ning teskarisi). So'ng metrikalarni hisoblaymiz. E'tibor bering: baholashni <b>test set</b>'da qilamiz — model buni hech ko'rmagan, shuning uchun bu "halol" natija. Bir nechta metrika ko'ramiz: MAE (o'rtacha xato), RMSE (katta xatolarni jazolaydi), R² (umumiy sifat).</p>
   <div class="code-block">
     <div class="code-head"><span>pipeline_6_eval.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
 <pre><code><span class="kw">from</span> sklearn.metrics <span class="kw">import</span> mean_absolute_error, mean_squared_error, r2_score
@@ -1095,6 +1236,7 @@ r2   = r2_score(y_true, y_pred)                        <span class="cm"># Tushun
   </div>
 
   <h3><span class="ico">7️⃣</span>Modelni saqlash</h3>
+  <p><b>Nima qilyapmiz va nega?</b> Model o'qitish soatlab davom etishi mumkin — uni har safar qayta o'qitish aqlsizlik. <b>joblib</b> bilan o'qitilgan modelni faylga saqlaymiz, keyinroq (masalan veb-ilovada) bir soniyada yuklab, bashorat qilamiz. <b>Juda muhim:</b> model bilan birga <b>belgilar ro'yxati va tartibini</b> ham saqlang — bashorat paytida aynan bir xil belgilar, bir xil tartibda berilishi shart, aks holda model xato javob beradi.</p>
   <div class="code-block">
     <div class="code-head"><span>pipeline_7_save.py</span><button class="copy-btn" onclick="copyCode(this)">Nusxa olish</button></div>
 <pre><code><span class="kw">import</span> joblib
